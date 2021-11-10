@@ -1,0 +1,17 @@
+<%- include ('partials/header', {username: ""}) -%>
+  
+<h2>Credly JSON Data</h2>
+<b>JSON Object :</b>
+<p id="demo"></p>
+<!-- <b>Use of Javascript object :</b>
+<p id="demo1"></p> -->
+  
+<script>
+
+  
+// Here we convert JSON to object
+var obj = JSON.parse(data);
+  
+document.getElementById("demo").innerHTML =data;
+</script>
+<%- include ('partials/footer') -%>
