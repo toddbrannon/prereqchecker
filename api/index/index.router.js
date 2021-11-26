@@ -1,6 +1,7 @@
 const express = require('express');
 var axios = require('axios');
-var data = JSON.stringify({"first_name":"Todd","last_name":"Brannon","username":"tbrannon","email_address":"todd@nowhere.com","password":"password1234"});
+//var data = JSON.stringify({"first_name":"Todd","last_name":"Brannon","username":"tbrannon","email_address":"todd@nowhere.com","password":"password1234"});
+const prettyjson = require('prettyjson');
 const router = express.Router();
 
 var request = require('request');
@@ -169,9 +170,9 @@ router.get("/splunku", (err, res) => {
 // All enrollments GET route ..............................................................................................
 // ........................................................................................................................
 router.get("/learndot_enrollments", (err, res) => {
-	var sqldelenrollments = `DELETE FROM enrollmentrefresh;`
+	var sql_delete_events_and_enrollments = `DELETE FROM enrollmentrefresh;`
 	// DELETE EXISTING DATA FROM THE tb_credlybadgeresult table ===========================================================
-	pool.query(sqldelenrollments, (err, results, fields) => {
+	pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
 		if (err) {
 			console.log("Failed to delete records from enrollmentrefresh!!!")
 			console.log(err)
@@ -184,7 +185,7 @@ router.get("/learndot_enrollments", (err, res) => {
 	
 
     if (err) console.log(err);
-    let sqlselectlearndotenrollments = 
+    let sql_get_events_and_enrollments = 
 					`SELECT 
 	            	V.id AS event_id,
 	            	V.startTime,
@@ -195,6 +196,7 @@ router.get("/learndot_enrollments", (err, res) => {
 	            	E.status,
 	            	LOC.name,
 	            	E.contact_id,
+					E.score,
                 	urlName
 	            FROM 
 	            	event V
@@ -212,78 +214,185 @@ router.get("/learndot_enrollments", (err, res) => {
 	            	V.status LIKE 'CONFIRMED'
 	            	AND 
 	            	E.status NOT LIKE 'CANCELLED';`
-      let query = pool.query(sqlselectlearndotenrollments, (err, rows, results) => {
+      let query = pool.query(sql_get_events_and_enrollments, (err, rows, results) => {
+		console.log("rows:" + JSON.stringify(rows))
 		
-		const learndot_enrollments = []
-        if (err) throw err;
-		for(var i in rows)
-			if(rows[i].event_id != undefined)
+		for(i=1; i <= Object.keys(rows).length; i++){
 			
-			
-        	console.log(rows[i].event_id, rows[i].email, rows[i].enrollment_id)
-			learndot_enrollments.push[i, rows[i].email]
-			
-			
+			if(rows[i] != undefined){
+				// let email = JSON.stringify(rows[i].email)
+				// console.log(email);
+				for(var i in rows) {
+					var event_id = JSON.stringify(rows[i].event_id)
+					var start_time = JSON.stringify(rows[i].startTime)
+					var email = JSON.stringify(rows[i].email)
+					var enrollment_id = JSON.stringify(rows[i].enrollment_id)
+					var firstname = JSON.stringify(rows[i].firstName)
+					var lastname = JSON.stringify(rows[i].lastName)
+					var status = JSON.stringify(rows[i].status)
+					var locationname = JSON.stringify(rows[i].name)
+					var contactid = JSON.stringify(rows[i].contact_id)
+					var score = JSON.stringify(rows[i].score)
+					var urlname = JSON.stringify(rows[i].urlName)
+					// console.log("eventid: " + event_id)
+					// console.log("start time3: " + start_time)
+					// console.log("email: " + email)
+					// console.log("enrollment id: " + enrollment_id)
+					// console.log("first: " + firstname)
+					// console.log("last: " + lastname)
+					// console.log("status: " + status)
+					// console.log("location: " + locationname)
+					// console.log("contact id : " + contactid)
+					// console.log("score: " + score)
+					// console.log("url name: " + urlname)
 
-			learndot_enrollments.forEach(learndot_enrollments => {
-				var event_id = learndot_enrollments[0]
-				var start_time = learndot_enrollments[1]
-				var enrollment_id = learndot_enrollments[2]
-				var email = learndot_enrollments[3]
-				var firstname = learndot_enrollments[4]
-				var lastname = learndot_enrollments[5]
-				var status = learndot_enrollments[6]
-				var locationname = learndot_enrollments[7]
-				var contactid = learndot_enrollments[8]
-				var score = learndot_enrollments[9]
-				var urlname = learndot_enrollments[10]
-				console.log(event_id)
-				console.log(start_time)
-				console.log(enrollment_id)
-				console.log(email)
-				console.log(firstname)
-				console.log(lastname)
-				console.log(status)
-				console.log(locationname)
-				console.log(contactid)
-				console.log(score)
-				console.log(urlname)
-					  
-				var sqlinsertlearndotenrollments = 
-							`INSERT INTO enrollmentrefresh (
-							event_id, 
-							start_time,
-							enrollment_id,
-							email,
-							firstname,
-							lastname,
-							status,
-							locationname,
-							contactid,
-							score,
-							urlname
-							) VALUES (
-							'${event_id}', 
-							'${start_time}',
-							'${enrollment_id}', 
-							'${email}',
-							'${firstname}', 
-							'${lastname}',
-							'${status}', 
-							'${locationname}',
-							'${contactid}', 
-							'${score}',
-							'${urlname}');`
-				console.log(sqlinsertlearndotenrollments)
-			})
+					var sql_insert_enrollments_and_events = 
+						`INSERT INTO enrollmentrefresh (
+						event_id, 
+						start_time,
+						enrollment_id,
+						email,
+						firstname,
+						lastname,
+						status,
+						locationname,
+						contactid,
+						score,
+						urlname
+						) VALUES (
+						'${event_id}', 
+						'${start_time}',
+						'${enrollment_id}', 
+						'${email}',
+						'${firstname}', 
+						'${lastname}',
+						'${status}', 
+						'${locationname}',
+						'${contactid}', 
+						'${score}',
+						'${urlname}');`
+					console.log(sql_insert_enrollments_and_events)
 
-			function logArray(learndot_enrollments){
-				learndot_enrollments.forEach(x => console.log("learndot_enrollments: " + x));
+					pool.query(sql_insert_enrollments_and_events, (err, results, fields) => {
+						if (err) {
+							console.log("Failed to insert records into enrollmentrefresh!!!")
+							console.log(err)
+							res.sendStatus(500)
+							return
+						}
+						console.log("Inserted the new data from the enrollmentrefresh table");
+						// res.end()
+					})
+
+					var sql_get_enrollments_learndot = 
+						`SELECT
+							E.id AS registrationID,
+							LC.name AS courseName
+						FROM
+							enrollment E
+						INNER JOIN
+							learningcomponent LC ON E.component_id = LC.id
+						INNER JOIN
+							contact C ON E.contact_id = C.id
+						WHERE
+							C.email LIKE '${email}'
+						AND
+							E.status LIKE 'PASSED'
+						AND
+						(
+							(LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+							OR 
+							LC.name LIKE '%Creating Dashboards%'
+							OR 
+							LC.name LIKE '%Advanced Searching%'
+							OR 
+							LC.name LIKE '%Core Consultant Labs%'
+						);`
+
+					pool.query(sql_get_enrollments_learndot, (err, results, fields) => {
+						if (err) {
+							console.log("Failed to check for learndot enrollments by email!!!")
+							console.log(err)
+							res.sendStatus(500)
+							return
+						}
+						console.log("Inserted the new data from the enrollmentrefresh table");
+						// res.end()
+					})
+					
+				}
 			}
-			logArray(learndot_enrollments)
+			
+		}
+		
+		// const learndot_enrollments = []
+        // if (err) throw err;
+		// for(var i in rows)
+		// 	if(rows[i].event_id != undefined){
+		// 		// console.log("event_id/email/enrollment_id: " + rows[i].event_id, rows[i].email, rows[i].enrollment_id)
+		// 		learndot_enrollments.push(rows[i].email + ", " + rows[i].event_id + ", " + rows[i].enrollment_id)
+		// 		// console.log("learndot_enrollments: " + learndot_enrollments[i])
+			
+			
+		// 		learndot_enrollments.forEach(learndot_enrollments => {
+		// 			var event_id = learndot_enrollments[0]
+		// 			var start_time = learndot_enrollments[1]
+		// 			var enrollment_id = learndot_enrollments[2]
+		// 			var email = learndot_enrollments[3]
+		// 			var firstname = learndot_enrollments[4]
+		// 			var lastname = learndot_enrollments[5]
+		// 			var status = learndot_enrollments[6]
+		// 			var locationname = learndot_enrollments[7]
+		// 			var contactid = learndot_enrollments[8]
+		// 			var score = learndot_enrollments[9]
+		// 			var urlname = learndot_enrollments[10]
+		// 			console.log("event_id: " + event_id)
+		// 			console.log("start_time: " + start_time)
+		// 			console.log("enrollment_id:" + enrollment_id)
+		// 			console.log(email)
+		// 			console.log(firstname)
+		// 			console.log(lastname)
+		// 			console.log(status)
+		// 			console.log(locationname)
+		// 			console.log(contactid)
+		// 			console.log(score)
+		// 			console.log(urlname)
+						
+		// 			// var sqlinsertlearndotenrollments = 
+		// 			// 			`INSERT INTO enrollmentrefresh (
+		// 			// 			event_id, 
+		// 			// 			start_time,
+		// 			// 			enrollment_id,
+		// 			// 			email,
+		// 			// 			firstname,
+		// 			// 			lastname,
+		// 			// 			status,
+		// 			// 			locationname,
+		// 			// 			contactid,
+		// 			// 			score,
+		// 			// 			urlname
+		// 			// 			) VALUES (
+		// 			// 			'${event_id}', 
+		// 			// 			'${start_time}',
+		// 			// 			'${enrollment_id}', 
+		// 			// 			'${email}',
+		// 			// 			'${firstname}', 
+		// 			// 			'${lastname}',
+		// 			// 			'${status}', 
+		// 			// 			'${locationname}',
+		// 			// 			'${contactid}', 
+		// 			// 			'${score}',
+		// 			// 			'${urlname}');`
+		// 			// console.log(sqlinsertlearndotenrollments)
+		// 		})
 
-			console.log(learndot_enrollments[0])
+		// 		function logArray(learndot_enrollments){
+		// 			learndot_enrollments.forEach(x => console.log("learndot_enrollments: " + x));
+		// 		}
+		// 		logArray(learndot_enrollments)
 
+		// 		//console.log("learndot_enrollments[0]: " + learndot_enrollments[0])
+		// 	}
         res.render('enrollments', {
             title: 'Splunk Core Implementation Prerequisite Check',
             enrollmentresults: rows
