@@ -350,50 +350,32 @@ router.get("/elearning_enrollments", (err, res) => {
                                     	    + "'" + coursename + "', "
                                     	    + "'" + email + "'" + `);`
 											
-                                    	console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
+                                    	// console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
 
+										pool2.query(sql_insert_elr_prereqs, (err, rows, results) => {
+											if(err){
+												console.log(err)
+												res.sendStatus(500)
+												return
+											}											
+										})
 										}
-									}
-								}
-							}
-							
-										
-						
-
-                        
-							
-            
-
-                        
-                                    
-                        //             // execute the INSERT query
-                        //             pool2.query(sql_insert_elr_prereqs, (err, rows, results) => {
-                        //                 if (err) {
-                        //                     console.log("Failed to insert records into tb_elr_prereqs!!!")
-                        //                     console.log(err)
-                        //                     res.sendStatus(500)
-                        //                     return
-                        //                 }
-                        //                 console.log("Inserted the new data from the tb_elr_prereqs table");
-						// 				console.log("This should have been only the same number of records that exist in the enrollmentrefresh table!")
-                        //                 // res.end()
-                        //             })
-                        //         }
-                        //     }
-                        //     res.render("splunku_enrollments", {
-                        //         title: "Splunk Core Implementation Prerequisite Checker",
-                        //     });
-                        // }
-                    })
-                }
-            }
-        }
+									}									
+								}								
+							}							
+                    })					
+                }				
+            }			
+        }	
+		console.log("Render!")
+											// res.render("splunku_enrollments", {
+											// 	title: "Splunk Core Implementation Prerequisite Checker",
+											// });	
     })
+	
 }
-
 	get_elearningrecords();
-
-	})
+	})	
 })
 	
 
