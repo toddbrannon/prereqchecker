@@ -153,7 +153,7 @@ router.get("/learndot_enrollments", (err, res) => {
 	// create function
 	function get_learndot_events_enrollments() {
 		// 2a. create the query and set to variable
-		let sql_get_events_and_enrollments = 
+		let sql_get_ld_events_and_enrollments = 
 				`SELECT 
 	            	V.id AS event_id,
 	            	V.startTime,
@@ -184,26 +184,26 @@ router.get("/learndot_enrollments", (err, res) => {
 	            	E.status NOT LIKE 'CANCELLED';`
 
 		// 2b. execute the SELECT query
-		pool.query(sql_get_events_and_enrollments, (err, rows, results) => {
+		pool.query(sql_get_ld_events_and_enrollments, (err, rows, results) => {
 			// console.log("rows:" + JSON.stringify(rows))
 			// 2c. Assign results of query to variables to insert into subsequent INSERT query (inserting into table: enrollmentrefresh)
 			for(i=1; i <= Object.keys(rows).length; i++){
 				if(rows[i] != undefined){
 					for(var i in rows) {
-						var event_id = JSON.stringify(rows[i].event_id)
-						var start_time = JSON.stringify(rows[i].startTime)
-						var email = JSON.stringify(rows[i].email)
-						var enrollment_id = JSON.stringify(rows[i].enrollment_id)
-						var firstname = JSON.stringify(rows[i].firstName)
-						var lastname = JSON.stringify(rows[i].lastName)
-						var status = JSON.stringify(rows[i].status)
-						var locationname = JSON.stringify(rows[i].name)
-						var contactid = JSON.stringify(rows[i].contact_id)
-						var score = JSON.stringify(rows[i].score)
-						var urlname = JSON.stringify(rows[i].urlName)
+						var ld_event_id = JSON.stringify(rows[i].event_id)
+						var ld_start_time = JSON.stringify(rows[i].startTime)
+						var ld_email = JSON.stringify(rows[i].email)
+						var ld_enrollment_id = JSON.stringify(rows[i].enrollment_id)
+						var ld_firstname = JSON.stringify(rows[i].firstName)
+						var ld_lastname = JSON.stringify(rows[i].lastName)
+						var ld_status = JSON.stringify(rows[i].status)
+						var ld_locationname = JSON.stringify(rows[i].name)
+						var ld_contactid = JSON.stringify(rows[i].contact_id)
+						var ld_score = JSON.stringify(rows[i].score)
+						var ld_urlname = JSON.stringify(rows[i].urlName)
 
 						// 2d. create query to insert results from sql_get_events_and_enrollments into the enrollmentsrefresh table
-						var sql_insert_enrollments_and_events = 
+						var sql_insert_ld_enrollments_and_events = 
 						`INSERT INTO enrollmentrefresh (
 						event_id, 
 						start_time,
@@ -217,22 +217,22 @@ router.get("/learndot_enrollments", (err, res) => {
 						score,
 						urlname
 						) VALUES (
-						'${event_id}', 
-						'${start_time}',
-						'${enrollment_id}', 
-						'${email}',
-						'${firstname}', 
-						'${lastname}',
-						'${status}', 
-						'${locationname}',
-						'${contactid}', 
-						'${score}',
-						'${urlname}');`
+						'${ld_event_id}', 
+						'${ld_start_time}',
+						'${ld_enrollment_id}', 
+						'${ld_email}',
+						'${ld_firstname}', 
+						'${ld_lastname}',
+						'${ld_status}', 
+						'${ld_locationname}',
+						'${ld_contactid}', 
+						'${ld_score}',
+						'${ld_urlname}');`
 
-					console.log(sql_insert_enrollments_and_events)
+					console.log(sql_insert_ld_enrollments_and_events)
 
 					// 2e. execute the INSERT query
-					pool.query(sql_insert_enrollments_and_events, (err, results, fields) => {
+					pool.query(sql_insert_ld_enrollments_and_events, (err, results, fields) => {
 						if (err) {
 							console.log("Failed to insert records into enrollmentrefresh!!!")
 							console.log(err)
@@ -286,7 +286,7 @@ router.get("/elearning_enrollments", (err, res) => {
 
 	// create a function
 	function get_elearningrecords(){
-	var sql_getemails = `SELECT email FROM enrollmentrefresh;`
+	var sql_getemails = `SELECT email, event_id, enrollment_id, firstname, lastname, status FROM enrollmentrefresh;`
     
     // execute the query
     pool.query(sql_getemails, (err, rows, results)=>{
@@ -298,6 +298,19 @@ router.get("/elearning_enrollments", (err, res) => {
                     var email = JSON.stringify(rows[i].email)
 					var email = email.replace('"\\"', '')
 					var email = email.replace('\\""', '')
+					var event_id = JSON.stringify(rows[i].event_id)
+					var enrollment_id = JSON.stringify(rows[i].enrollment_id)
+					var firstname = JSON.stringify(rows[i].firstname)
+					var firstname = firstname.replace('"\\"', '')
+					var firstname = firstname.replace('\\""', '')
+					var lastname = JSON.stringify(rows[i].lastname)
+					var lastname = lastname.replace('"\\"', '')
+					var lastname = lastname.replace('\\""', '')
+					var status = JSON.stringify(rows[i].status)
+					var status = status.replace('"\\"', '')
+					var status = status.replace('\\""', '')
+					console.log (email + "|" + event_id + "|" + enrollment_id + "|" + firstname + "|" + lastname + "|" + status)
+
 					// console.log(email)
                     var sql_getelr = 
                         `SELECT
@@ -337,7 +350,7 @@ router.get("/elearning_enrollments", (err, res) => {
 										var email = JSON.stringify(rows[j].email)
 										var coursename = JSON.stringify(rows[j].courseName)
 										var regid = JSON.stringify(rows[j].registrationID)
-										console.log("j - " + j + " - email:" + email + " - coursename: " + coursename + ";")
+										console.log("j - " + j + " - email:" + email + " - coursename: " + coursename + " - event_id: " + event_id + " - enrollment_id: " + enrollment_id + " - status: " + status + ";")
 
             							// Query to insert results from sql_get_events_and_enrollments into the enrollmentsrefresh table
                                     	var sql_insert_elr_prereqs = 
