@@ -7,7 +7,6 @@ const router = express.Router();
 var request = require('request');
 
 const pool = require("../../config/database");
-const sql2 = require('../../config/database');
 const pool2 = require("../../config/database2");
 const res = require('express/lib/response');
 
@@ -33,7 +32,7 @@ router.get('/json_test', (req, res) => {
 // Function to clear the enrollmentrefresh table before inserting refreshed data
 function deleteenrollments() {
 	// set variable to the query string
-	var sql_delete_events_and_enrollments = sql1;
+	var sql_delete_events_and_enrollments = `DELETE FROM enrollmentrefresh;`
 	// execute the query
 	pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
 		if (err) {
@@ -50,7 +49,35 @@ function deleteenrollments() {
 // function that gets the learndot events and enrollments and then inserts them into the enrollment refresh table
 function get_learndot_events_enrollments() {
 	// 1. create the query and set to variable
-	let sql_get_ld_events_and_enrollments = sql2;
+	let sql_get_ld_events_and_enrollments = 
+			`SELECT 
+				V.id AS event_id,
+				V.startTime,
+				E.id AS enrollment_id,
+				C.email,
+				C.firstName,
+				C.lastName,
+				E.status,
+				LOC.name,
+				E.contact_id,
+				E.score,
+				urlName
+			FROM 
+				event V
+				LEFT JOIN 
+				enrollment E ON V.id = E.event_id
+				LEFT JOIN
+				contact C ON E.contact_id = C.id
+				INNER JOIN 
+				location LOC ON V.location_id = LOC.id
+			WHERE 
+				V.course_id = 256 
+				AND 
+				V.startTime > CURRENT_TIMESTAMP
+				AND 
+				V.status LIKE 'CONFIRMED'
+				AND 
+				E.status NOT LIKE 'CANCELLED';`
 
 	// 2. execute the SELECT query
 	pool.query(sql_get_ld_events_and_enrollments, (err, rows, results) => {
@@ -414,6 +441,11 @@ router.get("/prereqcheck", (req, res) => {
 	get_learndot_events_enrollments();
 
 	res.send("Success!!")
-});
+})
+
+
+
+
+
 
 module.exports = router;
