@@ -184,7 +184,7 @@ function get_elearningrecords(){
     })	
 }
 
-function delete_learndotenrollments() {
+function delete_learndot() {
 	var delete_learndotenrollments = 'DELETE FROM tb_enrollments_learndot';
 	// execute the DELETE query
 	database.pool.query(delete_learndotenrollments, (err, results, fields) => {
@@ -200,7 +200,7 @@ function delete_learndotenrollments() {
 }
 
 // Refresh the tb_learndot_enrollments table
-function get_learndotenrollments(){
+function get_learndot(){
 	var sql_getemails = database.sql5;
 
     // execute the query
@@ -216,67 +216,80 @@ function get_learndotenrollments(){
 
 					var records4 = [email]
 					
-					console.log(email)
+					// console.log(email)
 					
-                    const sql_getlearndot = `SELECT
-						E.id AS registrationID,
-						LC.name AS courseName
-					FROM
-						enrollment E
-					INNER JOIN
-						learningcomponent LC ON E.component_id = LC.id
-					INNER JOIN
-						contact C ON E.contact_id = C.id
-					WHERE
-						C.email LIKE '${email}'
-					AND
-						E.status LIKE 'PASSED'
-					AND
-					(
-						(LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
-						OR 
-						LC.name LIKE '%Creating Dashboards%'
-						OR 
-						LC.name LIKE '%Advanced Searching%'
-						OR 
-						LC.name LIKE '%Core Consultant Labs%'
-					);`;
+                    var sql_get_enrollments_learndot = 
+						`SELECT
+							E.id AS registrationID,
+							LC.name AS courseName,
+							E.contact_id,
+							C.email
+						FROM
+							enrollment E
+						INNER JOIN
+							learningcomponent LC ON E.component_id = LC.id
+						INNER JOIN
+							contact C ON E.contact_id = C.id
+						WHERE
+							C.email = ` + "'" + email + "'" +
+						` AND
+							E.status LIKE 'PASSED'
+						AND
+						(
+							(LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+							OR 
+							LC.name LIKE '%Creating Dashboards%'
+							OR 
+							LC.name LIKE '%Advanced Searching%'
+							OR 
+							LC.name LIKE '%Core Consultant Labs%'
+						);`
 
-					console.log(sql_getlearndot)
+					console.log(sql_get_enrollments_learndot)
 
-                    database.pool.query(sql_getlearndot, [records4], (err, rows, results)=>{
+					database.pool.query(sql_get_enrollments_learndot, (err, rows, results)=>{
 						var rowcount = Object.keys(rows).length
 						if(rowcount > 0){
 							for(j=1; j<=rowcount; j++){
 								if(rows[j] != undefined){
 									for(var j in rows){
-										var ld_email = JSON.stringify(rows[j].email)
-										// var ld_email = ld_email.replace('"\\"', '')
-										// var ld_email = ld_email.replace('\\""', '')
-										var ld_coursename = JSON.stringify(rows[j].courseName)
-										var ld_regid = JSON.stringify(rows[j].registrationID)
+										var el_email = JSON.stringify(rows[j].email)
+										var el_coursename = JSON.stringify(rows[j].courseName)
+										var el_contactid = JSON.stringify(rows[j].contactID)
+										var el_regid = JSON.stringify(rows[j].registrationID)
 										// console.log("j - " + j + " - email:" + el_email + " - coursename: " + el_coursename + " - reg_id: " + el_regid + ";")
-										console.log(ld_email, ld_coursename, ld_regid)
-										var records5 = [ld_regid, ld_coursename, ld_email]
+
+										
+
             							// Query to insert results from sql_get_events_and_enrollments into the enrollmentsrefresh table
-                                    	var sql_insert_ld_results = database.sql11;
+                                    	var sql_insert_enrollments_learndot = 
+                                    	    `INSERT INTO tb_enrollments_learndot (
+                                    	    registrationID,
+                                    	    courseName,
+											contactID,
+                                    	    email
+                                    	    ) VALUES (`
+                                    	    + "'" + el_regid + "', "
+                                    	    + "'" + el_coursename + "', "
+											+ "'" + el_contactid + "', "
+                                    	    + "'" + el_email + "'" + `);`
 											
                                     	// console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
 
-										// database.pool.query(sql_insert_ld_results, [records5], (err, rows, results) => {
-										// 	if(err){
-										// 		console.log(err)
+										database.pool.query(sql_insert_enrollments_learndot, (err, rows, results) => {
+											if(err){
+												console.log(err)
 												
-										// 		return
-										// 	} else {
-										// 		console.log("inserted records into tb_enrollments_learndot")
-										// 		// res.end()
-										// 	}									
-										// })
-										}
-									}									
-								}								
-							}							
+												return
+											} else {
+												console.log("inserted records into tb_enrollments_learndot")
+												// res.end()
+											}										
+										})
+									}
+								}									
+							}								
+						}							
                     })					
                 }				
             }			
@@ -298,8 +311,8 @@ async function fnAsync() {
 	// // deleteFromELRPrereqs();
 	// await deleteFromELRResults();
 	// await get_elearningrecords();
-	await delete_learndotenrollments();
-	get_learndotenrollments();
+	await delete_learndot();
+	get_learndot();
 }
 
 router.get("/prereqcheck", (req, res) => {
