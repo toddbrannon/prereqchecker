@@ -6,9 +6,10 @@ const router = express.Router();
 
 var request = require('request');
 
-const pool = require("../../config/database");
+const database = require("../../config/database");
+// const pool = require("../../config/database");
 const sql2 = require('../../config/database');
-const pool2 = require("../../config/database2");
+const database2 = require("../../config/database2");
 const res = require('express/lib/response');
 
 // Main landing page GET route ............................................................................................
@@ -35,7 +36,7 @@ function deleteenrollments() {
 	// set variable to the query string
 	var sql_delete_events_and_enrollments = sql1;
 	// execute the query
-	pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
+	database.pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
 		if (err) {
 			console.log("Failed to delete records from enrollmentrefresh!!!")
 			console.log(err)
@@ -53,7 +54,7 @@ function get_learndot_events_enrollments() {
 	let sql_get_ld_events_and_enrollments = sql2;
 
 	// 2. execute the SELECT query
-	pool.query(sql_get_ld_events_and_enrollments, (err, rows, results) => {
+	database.pool.query(sql_get_ld_events_and_enrollments, (err, rows, results) => {
 		// console.log("rows:" + JSON.stringify(rows))
 		// 3. Assign results of query to variables to insert into subsequent INSERT query (inserting into table: enrollmentrefresh)
 		for(i=1; i <= Object.keys(rows).length; i++){
@@ -104,7 +105,7 @@ function get_learndot_events_enrollments() {
 				//console.log(sql_insert_ld_enrollments_and_events)
 
 				// 5. execute the INSERT query
-				pool.query(sql_insert_ld_enrollments_and_events, (err, results, fields) => {
+				database.pool.query(sql_insert_ld_enrollments_and_events, (err, results, fields) => {
 					if (err) {
 						console.log("Failed to insert records into enrollmentrefresh!!!")
 						console.log(err)
@@ -128,7 +129,7 @@ function delete_elr() {
 	// set variable to the query string
 	var sql_delete_elr_results = `DELETE FROM tb_elr_results;`
 	// execute the query
-	pool.query(sql_delete_elr_results, (err, results, fields) => {
+	database.pool.query(sql_delete_elr_results, (err, results, fields) => {
 		if (err) {
 			console.log("Failed to delete records from tb_elr_results!!!")
 			console.log(err)
@@ -146,7 +147,7 @@ function get_elearningrecords(){
 	var sql_getemails = `SELECT email, event_id, enrollment_id, firstname, lastname, status FROM enrollmentrefresh;`
 
     // execute the query
-    pool.query(sql_getemails, (err, rows, results)=>{
+    database.pool.query(sql_getemails, (err, rows, results)=>{
 		console.log("getting the emails from enrollmentrefresh table")
 		console.log("sql_getemails" + Object.keys(rows).length)
         for(i=1;i <= Object.keys(rows).length; i++){
@@ -200,7 +201,7 @@ function get_elearningrecords(){
 					// console.log("-------------------------------")
 					// console.log("sql_getelr = " + sql_getelr);
                     // execute the SELECT query
-                    pool2.query(sql_getelr, (err, rows, results)=>{
+                    database2.pool.query(sql_getelr, (err, rows, results)=>{
 						var rowcount = Object.keys(rows).length
 						if(rowcount > 0){
 							for(j=1; j<=rowcount; j++){
@@ -226,7 +227,7 @@ function get_elearningrecords(){
 											
                                     	// console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
 
-										pool.query(sql_insert_elr_results, (err, rows, results) => {
+										database.pool.query(sql_insert_elr_results, (err, rows, results) => {
 											if(err){
 												console.log(err)
 												
@@ -251,7 +252,7 @@ function delete_learndot() {
 	// set variable to the query string
 	var sql_delete_enrollments_learndot = `DELETE FROM tb_enrollments_learndot;`
 	// execute the query
-	pool.query(sql_delete_enrollments_learndot, (err, results, fields) => {
+	database.pool.query(sql_delete_enrollments_learndot, (err, results, fields) => {
 		if (err) {
 			console.log("Failed to delete records from tb_enrollments_learndot!!!")
 			console.log(err)
@@ -267,7 +268,7 @@ function get_learndot(){
 	var sql_getemails = `SELECT email, event_id, enrollment_id, firstname, lastname, status FROM enrollmentrefresh;`
 
     // execute the query
-    pool.query(sql_getemails, (err, rows, results)=>{
+    database.pool.query(sql_getemails, (err, rows, results)=>{
 		console.log("getting the emails from enrollmentrefresh table")
 		console.log("sql_getemails" + Object.keys(rows).length)
         for(i=1;i <= Object.keys(rows).length; i++){
@@ -295,7 +296,9 @@ function get_learndot(){
                     var sql_get_enrollments_learndot = 
 						`SELECT
 							E.id AS registrationID,
-							LC.name AS courseName
+							LC.name AS courseName,
+							E.contact_id,
+							C.email
 						FROM
 							enrollment E
 						INNER JOIN
@@ -303,8 +306,8 @@ function get_learndot(){
 						INNER JOIN
 							contact C ON E.contact_id = C.id
 						WHERE
-							C.email LIKE '${email}'
-						AND
+							C.email = ` + "'" + email + "'" +
+						` AND
 							E.status LIKE 'PASSED'
 						AND
 						(
@@ -320,7 +323,7 @@ function get_learndot(){
 					// console.log("-------------------------------")
 					// console.log("sql_getelr = " + sql_getelr);
                     // execute the SELECT query
-                    pool.query(sql_get_enrollments_learndot, (err, rows, results)=>{
+                    database.pool.query(sql_get_enrollments_learndot, (err, rows, results)=>{
 						var rowcount = Object.keys(rows).length
 						if(rowcount > 0){
 							for(j=1; j<=rowcount; j++){
@@ -328,6 +331,7 @@ function get_learndot(){
 									for(var j in rows){
 										var el_email = JSON.stringify(rows[j].email)
 										var el_coursename = JSON.stringify(rows[j].courseName)
+										var el_contactid = JSON.stringify(rows[j].contactID)
 										var el_regid = JSON.stringify(rows[j].registrationID)
 										// console.log("j - " + j + " - email:" + el_email + " - coursename: " + el_coursename + " - reg_id: " + el_regid + ";")
 
@@ -338,15 +342,17 @@ function get_learndot(){
                                     	    `INSERT INTO tb_enrollments_learndot (
                                     	    registrationID,
                                     	    courseName,
+											contactID,
                                     	    email
                                     	    ) VALUES (`
                                     	    + "'" + el_regid + "', "
                                     	    + "'" + el_coursename + "', "
+											+ "'" + el_contactid + "', "
                                     	    + "'" + el_email + "'" + `);`
 											
                                     	// console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
 
-										pool.query(sql_insert_enrollments_learndot, (err, rows, results) => {
+										database.pool.query(sql_insert_enrollments_learndot, (err, rows, results) => {
 											if(err){
 												console.log(err)
 												
@@ -411,7 +417,7 @@ const runProcess = async() =>  {
 // All learndot enrollments GET route .......................................................................................................
 // .................................................................................................................................
 router.get("/prereqcheck", (req, res) => {
-	get_learndot_events_enrollments();
+	get_learndot();
 
 	res.send("Success!!")
 });

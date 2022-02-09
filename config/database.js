@@ -60,6 +60,36 @@ const sql7 = `INSERT INTO tb_elr_results (email, courseName, registrationID) VAL
 
 const sql8 = `DELETE FROM tb_elr_results;`
 
+const sql9 = `DELETE FROM tb_enrollments_learndot`
+
+const sql10 = `SELECT
+			   E.id AS registrationID,
+			   LC.name AS courseName
+			   FROM
+			   enrollment E
+			   INNER JOIN
+			   learningcomponent LC ON E.component_id = LC.id
+			   INNER JOIN
+			   contact C ON E.contact_id = C.id
+			   WHERE
+			   C.email LIKE '?'
+			   AND
+			   E.status LIKE 'PASSED'
+			   AND
+			   (
+			   (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+			   OR 
+			   LC.name LIKE '%Creating Dashboards%'
+			   OR 
+			   LC.name LIKE '%Advanced Searching%'
+			   OR 
+			   LC.name LIKE '%Core Consultant Labs%'
+			   );`
+
+
+
+const sql11 = `INSERT INTO tb_enrollments_learndot (registrationID, courseName, email) VALUES (?);`
+
 module.exports.pool = pool;
 module.exports.sql1 = sql1;
 module.exports.sql2 = sql2;

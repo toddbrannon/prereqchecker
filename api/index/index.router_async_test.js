@@ -8,6 +8,7 @@ var request = require('request');
 
 const database = require("../../config/database");
 const database2 = require("../../config/database2");
+const res = require('express/lib/response');
 
 // Main landing page GET route ............................................................................................
 // ........................................................................................................................
@@ -183,8 +184,108 @@ function get_elearningrecords(){
     })	
 }
 
-function console2() {
-	console.log("This should be 2nd!")
+function delete_learndotenrollments() {
+	var delete_learndotenrollments = 'DELETE FROM tb_enrollments_learndot';
+	// execute the DELETE query
+	database.pool.query(delete_learndotenrollments, (err, results, fields) => {
+		if (err) {
+			console.log("Failed to delete records from tb_enrollments_learndot!!!")
+			console.log(err)
+			res.sendStatus(500)
+			return
+		}
+		console.log("Deleted the existing data from the tb_enrollments_learndot table");
+		// res.end()
+	})
+}
+
+// Refresh the tb_learndot_enrollments table
+function get_learndotenrollments(){
+	var sql_getemails = database.sql5;
+
+    // execute the query
+    database.pool.query(sql_getemails, (err, rows, results)=>{
+		// console.log("getting the emails from enrollmentrefresh table")
+		// console.log("sql_getemails" + Object.keys(rows).length)
+        for(i=1;i <= Object.keys(rows).length; i++){
+            if(rows[i] != undefined){
+                for(var i in rows){
+                    var email = JSON.stringify(rows[i].email)
+					var email = email.replace('"\\"', '')
+					var email = email.replace('\\""', '')
+
+					var records4 = [email]
+					
+					console.log(email)
+					
+                    const sql_getlearndot = `SELECT
+						E.id AS registrationID,
+						LC.name AS courseName
+					FROM
+						enrollment E
+					INNER JOIN
+						learningcomponent LC ON E.component_id = LC.id
+					INNER JOIN
+						contact C ON E.contact_id = C.id
+					WHERE
+						C.email LIKE '${email}'
+					AND
+						E.status LIKE 'PASSED'
+					AND
+					(
+						(LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+						OR 
+						LC.name LIKE '%Creating Dashboards%'
+						OR 
+						LC.name LIKE '%Advanced Searching%'
+						OR 
+						LC.name LIKE '%Core Consultant Labs%'
+					);`;
+
+					console.log(sql_getlearndot)
+
+                    database.pool.query(sql_getlearndot, [records4], (err, rows, results)=>{
+						var rowcount = Object.keys(rows).length
+						if(rowcount > 0){
+							for(j=1; j<=rowcount; j++){
+								if(rows[j] != undefined){
+									for(var j in rows){
+										var ld_email = JSON.stringify(rows[j].email)
+										// var ld_email = ld_email.replace('"\\"', '')
+										// var ld_email = ld_email.replace('\\""', '')
+										var ld_coursename = JSON.stringify(rows[j].courseName)
+										var ld_regid = JSON.stringify(rows[j].registrationID)
+										// console.log("j - " + j + " - email:" + el_email + " - coursename: " + el_coursename + " - reg_id: " + el_regid + ";")
+										console.log(ld_email, ld_coursename, ld_regid)
+										var records5 = [ld_regid, ld_coursename, ld_email]
+            							// Query to insert results from sql_get_events_and_enrollments into the enrollmentsrefresh table
+                                    	var sql_insert_ld_results = database.sql11;
+											
+                                    	// console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
+
+										// database.pool.query(sql_insert_ld_results, [records5], (err, rows, results) => {
+										// 	if(err){
+										// 		console.log(err)
+												
+										// 		return
+										// 	} else {
+										// 		console.log("inserted records into tb_enrollments_learndot")
+										// 		// res.end()
+										// 	}									
+										// })
+										}
+									}									
+								}								
+							}							
+                    })					
+                }				
+            }			
+        }	
+    })	
+}
+
+function console1() {
+	console.log("End!")
 }
 									
 
@@ -192,11 +293,13 @@ function console2() {
 // title: "Splunk Core Implementation Prerequisite Checker",
 
 async function fnAsync() {
-	await deleteEventsAndEnrollments();
-	await get_learndot_events_enrollments();
-	// deleteFromELRPrereqs();
-	await deleteFromELRResults();
-	get_elearningrecords();
+	// await deleteEventsAndEnrollments();
+	// await get_learndot_events_enrollments();
+	// // deleteFromELRPrereqs();
+	// await deleteFromELRResults();
+	// await get_elearningrecords();
+	await delete_learndotenrollments();
+	get_learndotenrollments();
 }
 
 router.get("/prereqcheck", (req, res) => {
