@@ -13,7 +13,8 @@
         </div> -->
             
             <!-- View Sales -->
-            <table class="table table-striped table-bordered table-expandable mydatatable" style="width: 100%;">
+            <% if(data.length) { %> 
+            <table id="table_e" class="table table-bordered table-expandable mydatatable" style="width: 100%;" data-page-length="100">
                 <thead>
                     <tr>
                       <th scope="col">Event ID</th>
@@ -21,27 +22,44 @@
 		              <th scope="col">Email</th>
 		              <th scope="col">Name</th>
 		              <th scope="col">Status</th>
-		              <th scope="col">Course Name</th>
-		              <th scope="col">Contact ID</th>
+		              <th scope="col">F3</th>
+		              <th scope="col">ASnR</th>
+                      <th scope="col">CD</th>
+		              <th scope="col">CCLabs</th>
+                      <th scope="col">ArchCert</th>
                     </tr>
                 </thead>
                 
                 <tbody>
-                    <% enrollmentresults.forEach(function(enrollmentresult) { %> 
+                    <% for(var i = 0; i< data.length; i++) { %>
                         <tr>
-                            <td><%= enrollmentresult.event_id %></td>
-                            <td><%= enrollmentresult.enrollment_id %></td>
-                            <td><%= enrollmentresult.email %></td>
-                            <td><%= enrollmentresult.firstName + " " + enrollmentresult.lastName %></td>
-                            <td><%= enrollmentresult.status %></td>
-                            <td><%= enrollmentresult.name %></td>
-                            <td><%= enrollmentresult.contact_id %></td>
+                            <!-- <th scope="row"><%= (i+1) %></th> -->
+                            <td><%= data[i].event_id %></td>
+                            <td><%= data[i].enrollment_id %></td>
+                            <td><%= data[i].email %></td>
+                            <td><%= data[i].full_name %></td>
+                            <td><%= data[i].status %></td>
+                            <td><%= data[i].F3 %></td>
+                            <td><%= data[i].ASnR %></td>
+                            <td><%= data[i].CD %></td>
+                            <td><%= data[i].CCLabs %></td>
+                            <td><%= data[i].ArchCert %></td>
                         </tr>
-                    <% }); %>
+                    <% } %>
                 </tbody>
-                
+            <% } %>
             </table>    
-
+            <script type="text/javascript">
+                $(function() {
+                    $("#table_e td").each(function() {
+                        if($(this).text() == 'NO') {
+                            $(this).css('background-color', 'red', 'important');
+                        } else if($(this).text() == 'YES') {
+                            $(this).css('background-color', 'green');
+                        }
+                    });
+                });
+            </script>
    </div>        
 </div>
 

@@ -11,6 +11,7 @@ const port = process.env.PORT;
 
 // Requiring Routes
 const indexRouter = require('./api/index/index.router_async_test')
+const enrollmentsRouter = require('./api/enrollments/enrollments.router')
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(methodOverride("_method"));
 // Using Routes ==========================================
 app.use('/', indexRouter)
 app.use('/request', indexRouter)
+app.use('/enrollments', enrollmentsRouter)
 
 
 

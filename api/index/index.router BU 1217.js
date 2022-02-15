@@ -30,11 +30,9 @@ router.get('/json_test', (req, res) => {
 // Get badge data from the Credly api .....................................................................................
 // ........................................................................................................................
 router.get('/fetch_badges', async (req, res) => {
-	console.log('/fetch_badges endpoint called')
-
-	var sql1 = `DELETE FROM tb_credlybadgeresult;`
+	var sql_delete_credly = `DELETE FROM tb_credlybadgeresult;`
 	// DELETE EXISTING DATA FROM THE tb_credlybadgeresult table ===========================================================
-	pool.query(sql1, (err, results, fields) => {
+	pool.query(sql_delete_credly, (err, results, fields) => {
 		if (err) {
 			console.log("Failed to delete credly data!!!")
 			console.log(err)
@@ -113,12 +111,7 @@ router.get('/fetch_badges', async (req, res) => {
 				return
 			}
 			console.log("Deleted the existing data from the enrollmentrefresh table");
-			// res.end()
 		})
-
-	// res.render('credly_data', {
-	// 	title: "Credly Data",
-	// })
 })
 
 // ........................................................................................................................

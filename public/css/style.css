@@ -10,7 +10,7 @@ body {
 }
 
 .navbar-brand {
-  color: #ed0080 !important;
+  color: #2d333b !important;
 }
 
 .nav-true-legacy {
@@ -20,7 +20,7 @@ body {
 .btn-outline-secondary {
   padding: 1em 2em 0.2em !important;
   background-color: #d6fcf8;
-  color: #ed0080;
+  color: #2d333b;
   border-color: #ffffff;
 }
 
@@ -56,7 +56,7 @@ body {
 }
 
 .table-bordered {
-  border-color: #ef4b55 !important;
+  border-color: #2d333b !important;
   color: #000000 !important;
 }
 
@@ -67,31 +67,31 @@ body {
 }
 
 .table th {
-  background-color: #ef4b55 !important;
+  background-color: #2d333b !important;
   color: #ffffff;
-  border-color: #ef4b55 !important;
+  border-color: #2d333b !important;
 }
 
 .table a {
-  color: #ef603c !important;
+  color: #2d333b !important;
   font-weight: 600;
   text-decoration: none;
 }
 
 .page-item.active .page-link {
-  background-color: #ed0080 !important;
-  border-color: #ed0080 !important;
+  background-color: #2d333b !important;
+  border-color: #2d333b !important;
 }
 
 .page-link {
-  color: #ed0080;
+  color: #2d333b;
 }
 
 .logo-container {
   margin-left: 0;
   margin-right: 0 !important;
   justify-content: center;
-  background-color: #ed0080;
+  background-color: #2d333b;
   max-width: 100%;
 }
 
@@ -134,7 +134,7 @@ p {
 }
 
 .btn-select-action {
-  background-color: #ed0080 !important;
+  background-color: #2d333b !important;
   color: #ffffff !important;
 }
 
@@ -152,7 +152,7 @@ p {
     height: 100%;
   }
   .logo-container {
-    background-color: #ed0080;
+    background-color: #2d333b;
   }
   .navbar-brand {
     font-size: 0em;

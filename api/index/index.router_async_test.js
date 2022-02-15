@@ -18,6 +18,21 @@ router.get("/", (req, res) => {
   });
 });
 
+router.get("/enrollments", (req, res) => {
+	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
+ 
+        if(err) {
+            // req.flash('error', err);
+            console.log(err.message)
+            // 
+            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:''});   
+        } else {
+            // 
+            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
+        }
+    });
+  });
+
 
 
 // STEP 1
@@ -297,20 +312,90 @@ function get_learndot(){
     })	
 }
 
-function console1() {
-	console.log("End!")
+function delete_credly() {
+	var sql_delete_credly = `DELETE FROM tb_credlybadgeresult;`
+	// DELETE EXISTING DATA FROM THE tb_credlybadgeresult table ===========================================================
+	database.pool.query(sql_delete_credly, (err, results, fields) => {
+		if (err) {
+			console.log("Failed to delete credly data!!!")
+			console.log(err)
+			res.sendStatus(500)
+			return
+		}
+		console.log("Deleted the existing data from the tb_credlybadgeresult table");
+		// res.end()
+	})
+
 }
-									
+
+function get_credly() {
+	
+	// GET DATA FROM THE CREDLY API =====================================================================================
+		var options = {
+		'method': 'GET',
+		'url': 'https://api.credly.com/v1/organizations/4b74de99-bfb3-4f61-a50e-a7a336f322e7/badges',
+		'headers': {
+			'Content-Type': 'application/json',
+			'Authorization': 'Basic TlI2SkxCS0F2dTMyZHVVT2cxN1VDbGhXVGdZUENmbzc0SjEtXzFoMDo='
+		},
+		// body: JSON.stringify({"first_name":"Todd","last_name":"Brannon","username":"tbrannon","email_address":"todd@nowhere.com","password":"password1234"})
+
+		};
+		request(options, function (error, response) {
+		if (error) throw new Error(error);
+		var body = response.body
+		body = JSON.parse(body)
+
+		// ADDED 11/01/2021 - TESTED and workded at 5:26pm ===============================================================
+		const data = body.data
+		const badge_results = []
+		
+		for(var i in data)
+			if(data[i].recipient_email != undefined)
+				// console.log(data[i].user.email)
+				// ADDED 11/07/2021 to get badge template id and recipient email (worked)
+				badge_results.push([i, data[i].recipient_email, data[i].badge_template.id])
+				function logArray(badge_results){
+					badge_results.forEach(x => console.log("results: " + x));
+				  }
+				  logArray(badge_results)
+
+		// Assign recipient email and badge id to variables (ADDED 11/08/2021 - works as intended)
+		// INSERT CREDLY DATA INTO MySQL (learndot.tb_credlybadgeresult) ================================================================
+		badge_results.forEach(badge_result => {
+			var recipient_email = badge_result[1]
+			var badge_id = badge_result[2]
+			console.log(recipient_email)
+			console.log(badge_id)
+			
+			var sql_insert_credly = `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id) VALUES ('${recipient_email}', '${badge_id}');`
+			
+			// RUN THE QUERY
+			database.pool.query(sql_insert_credly, (err, results, fields) => {
+				if (err) {
+					console.log("Failed to insert credly data!!!")
+					console.log(err)
+					res.sendStatus(500)
+					return
+				}
+				console.log("Inserted a new Credly record with id: " + results.insertId);
+				// res.end()
+			})			
+		})		
+		console.log('/fetch_badges json returned')
+		// res.send(body)
+		})
+	}										
 
 // res.render("splunku_enrollments", {
 // title: "Splunk Core Implementation Prerequisite Checker",
 
 async function fnAsync() {
-	// await deleteEventsAndEnrollments();
-	// await get_learndot_events_enrollments();
-	// // deleteFromELRPrereqs();
-	// await deleteFromELRResults();
-	// await get_elearningrecords();
+	await deleteEventsAndEnrollments();
+	await get_learndot_events_enrollments();
+	await deleteFromELRResults();
+	await get_elearningrecords();
+	await get_credly();
 	await delete_learndot();
 	get_learndot();
 }

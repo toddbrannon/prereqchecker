@@ -31,6 +31,8 @@ router.get('/json_test', (req, res) => {
 
 
 
+
+
 // Function to clear the enrollmentrefresh table before inserting refreshed data
 function deleteenrollments() {
 	// set variable to the query string
