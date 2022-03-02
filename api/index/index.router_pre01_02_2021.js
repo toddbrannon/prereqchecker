@@ -6,8 +6,10 @@ const router = express.Router();
 
 var request = require('request');
 
-const pool = require("../../config/database")
-const pool2 = require("../../config/database2")
+const database = require("../../config/database");
+// const pool = require("../../config/database");
+const sql2 = require('../../config/database');
+const database2 = require("../../config/database2");
 
 // Main landing page GET route ............................................................................................
 // ........................................................................................................................
@@ -391,6 +393,115 @@ router.get("/elearning_enrollments", (err, res) => {
 	get_elearningrecords();
 	})	
 })
+
+function get_elearningrecords(){
+	var sql_getemails = `SELECT email, event_id, enrollment_id, firstname, lastname, status FROM enrollmentrefresh;`
+    
+    // execute the query
+    database.pool.query(sql_getemails, (err, rows, results)=>{
+		console.log("getting the emails from enrollmentrefresh table")
+		console.log("sql_getemails" + Object.keys(rows).length)
+        for(i=1;i <= Object.keys(rows).length; i++){
+            if(rows[i] != undefined){
+                for(var i in rows){
+                    var email = JSON.stringify(rows[i].email)
+					var email = email.replace('"\\"', '')
+					var email = email.replace('\\""', '')
+					var event_id = JSON.stringify(rows[i].event_id)
+					var enrollment_id = JSON.stringify(rows[i].enrollment_id)
+					var firstname = JSON.stringify(rows[i].firstname)
+					var firstname = firstname.replace('"\\"', '')
+					var firstname = firstname.replace('\\""', '')  
+					var lastname = JSON.stringify(rows[i].lastname)
+					var lastname = lastname.replace('"\\"', '')
+					var lastname = lastname.replace('\\""', '')
+					var status = JSON.stringify(rows[i].status)
+					var status = status.replace('"\\"', '')
+					var status = status.replace('\\""', '')
+					console.log (email + "|" + event_id + "|" + enrollment_id + "|" + firstname + "|" + lastname + "|" + status)
+
+					// console.log(email)
+                    var sql_getelr = 
+                        `SELECT
+                            registrationID,
+                            courseName,
+                            email
+                        FROM
+                            eLearningRecords
+                        WHERE
+							email = ` + "'" + email + "'" + 
+						` AND
+                        (
+                            SCORMLESSONSTATUS LIKE 'passed'
+                            OR 
+                            registrationstatus LIKE 'PASSED'
+                        )
+                        AND
+                        (
+                            (courseName LIKE '%Fundamentals%' AND courseName LIKE '%Part 3%')
+                            OR 
+                            courseName LIKE '%Creating Dashboards%'
+                            OR 
+                            courseName LIKE '%Advanced Searching%'
+                            OR 
+                            courseName LIKE '%Core Consultant Labs%'
+                        );`
+					console.log("i: " + i + " - email: " + email)
+					console.log("-------------------------------")
+					// console.log("sql_getelr = " + sql_getelr);
+                    // execute the SELECT query
+                    database2.pool2.query(sql_getelr, (err, rows, results)=>{
+						var rowcount = Object.keys(rows).length
+						if(rowcount > 0){
+							for(j=1; j<=rowcount; j++){
+								if(rows[j] != undefined){
+									for(var j in rows){
+										var el_email = JSON.stringify(rows[j].email)
+										var el_coursename = JSON.stringify(rows[j].courseName)
+										var el_regid = JSON.stringify(rows[j].registrationID)
+										console.log("j - " + j + " - email:" + el_email + " - coursename: " + el_coursename + " - reg_id: " + el_regid + ";")
+
+            							// Query to insert results from sql_get_events_and_enrollments into the enrollmentsrefresh table
+                                    	var sql_insert_elr_prereqs = 
+                                    	    `INSERT INTO tb_elr_prereqs (
+                                    	    registrationID,
+                                    	    courseName,
+                                    	    email
+                                    	    ) VALUES (`
+                                    	    + "'" + el_regid + "', "
+                                    	    + "'" + el_coursename + "', "
+                                    	    + "'" + el_email + "'" + `);`
+											
+                                    	// console.log("sql_insert_elr_prereqs: " + sql_insert_elr_prereqs)
+
+										database2.pool2.query(sql_insert_elr_prereqs, (err, rows, results) => {
+											if(err){
+												console.log(err)
+												res.sendStatus(500)
+												return
+											}											
+										})
+										}
+									}									
+								}								
+							}							
+                    })					
+                }				
+            }			
+        }	
+		// console.log("Render!")
+		res.render("splunku_enrollments", {
+			title: "Splunk Core Implementation Prerequisite Checker",
+			splunkuenrollments: rows
+		});	
+    })
+	
+}
+
+router.get("/prereqcheck", (req, res) => {
+	get_elearningrecords();
+	res.send("Success!!")
+});
 	
 
 module.exports = router;

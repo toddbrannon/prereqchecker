@@ -10,8 +10,12 @@ const http = require('http')
 const port = process.env.PORT;  
 
 // Requiring Routes
-const indexRouter = require('./api/index/index.router_async_test')
-const enrollmentsRouter = require('./api/enrollments/enrollments.router')
+// const indexRouter = require('./api/index/index.router_async_test')
+// const indexRouter = require('./api/index/index.router_promises')
+// const indexRouter = require('./api/index/index.router_deved_test')
+//const indexRouter = require('./api/index/index.router')
+//const indexRouter = require('./api/index/index.router_pre01_02_2021')
+const indexRouter = require('./api/index/index.router_01152022')
 
 const app = express();
 
@@ -31,8 +35,6 @@ app.use(methodOverride("_method"));
 // Using Routes ==========================================
 app.use('/', indexRouter)
 app.use('/request', indexRouter)
-app.use('/enrollments', enrollmentsRouter)
-
 
 
 // listen for requests
