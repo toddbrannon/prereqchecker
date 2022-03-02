@@ -1,5 +1,6 @@
 const express = require('express');
 var axios = require('axios');
+//var data = JSON.stringify({"first_name":"Todd","last_name":"Brannon","username":"tbrannon","email_address":"todd@nowhere.com","password":"password1234"});
 const prettyjson = require('prettyjson');
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.get('/json_test', (req, res) => {
 // Function to clear the enrollmentrefresh table before inserting refreshed data
 function deleteenrollments() {
 	// set variable to the query string
-	var sql_delete_events_and_enrollments = database.sql1;
+	var sql_delete_events_and_enrollments = sql1;
 	// execute the query
 	database.pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
 		if (err) {
@@ -52,7 +53,7 @@ function deleteenrollments() {
 // function that gets the learndot events and enrollments and then inserts them into the enrollment refresh table
 function get_learndot_events_enrollments() {
 	// 1. create the query and set to variable
-	let sql_get_ld_events_and_enrollments = database.sql2;
+	let sql_get_ld_events_and_enrollments = sql2;
 
 	// 2. execute the SELECT query
 	database.pool.query(sql_get_ld_events_and_enrollments, (err, rows, results) => {
@@ -91,17 +92,17 @@ function get_learndot_events_enrollments() {
 					score,
 					urlname
 					) VALUES (
-					'?', 
-					'?',
-					'?', 
-					'?',
-					'?', 
-					'?',
-					'?', 
-					'?',
-					'?', 
-					'?',
-					'?');`
+					'${ld_event_id}', 
+					'${ld_start_time}',
+					'${ld_enrollment_id}', 
+					'${ld_email}',
+					'${ld_firstname}', 
+					'${ld_lastname}',
+					'${ld_status}', 
+					'${ld_locationname}',
+					'${ld_contactid}', 
+					'${ld_score}',
+					'${ld_urlname}');`
 
 				//console.log(sql_insert_ld_enrollments_and_events)
 
@@ -181,8 +182,8 @@ function get_elearningrecords(){
                         FROM
                             eLearningRecords
                         WHERE
-							email = '?'
-						AND
+							email = ` + "'" + email + "'" + 
+						` AND
                         (
                             SCORMLESSONSTATUS LIKE 'passed'
                             OR 
@@ -418,9 +419,7 @@ const runProcess = async() =>  {
 // All learndot enrollments GET route .......................................................................................................
 // .................................................................................................................................
 router.get("/prereqcheck", (req, res) => {
-	//get_learndot();
-	get_elearningrecords();
-	//runall();
+	get_learndot();
 
 	res.send("Success!!")
 });

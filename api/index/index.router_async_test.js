@@ -18,114 +18,108 @@ router.get("/", (req, res) => {
   });
 });
 
-
+router.get("/enrollments", (req, res) => {
+	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
+ 
+        if(err) {
+            // req.flash('error', err);
+            console.log(err.message)
+            // 
+            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:''});   
+        } else {
+            // 
+            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
+        }
+    });
+  });
 
 
 
 // STEP 1
 // create function to delete all records from enrollmentrefresh
 function deleteEventsAndEnrollments() {
-	return new Promise((resolve, reject) => {
-		// set variable to the query string
-		let sql_delete_events_and_enrollments = database.sql1;
+	// set variable to the query string
+	let sql_delete_events_and_enrollments = database.sql1;
 
-		// execute the query
-		database.pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
+	// execute the query
+	database.pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
 		if (err) console.log(err.message);
 			console.log("This should be 1st!");
-		});
-		const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in deleteEventsAndEnrollments!')
-		}
-	})	
+	});
 }
 
 // STEP 2
 // create function to get learndot events and enrollments and insert into enrollmentsrefresh table
 function get_learndot_events_enrollments() {
-	return new Promise((resolve, reject) => {
-		// 2a. create the query and set to variable
-		let sql_get_events_and_enrollments = database.sql2;
+	// 2a. create the query and set to variable
+	let sql_get_events_and_enrollments = database.sql2;
 
-		// 2b. execute the SELECT query
-		database.pool.query(sql_get_events_and_enrollments, (err, rows, results) => {
-			// console.log("rows:" + JSON.stringify(rows))
-			// 2c. Assign results of query to variables to insert into subsequent INSERT query (inserting into table: enrollmentrefresh)
-			for(i=1; i <= Object.keys(rows).length; i++){
-				if(rows[i] != undefined){
-					for(var i in rows) {
-						var event_id = JSON.stringify(rows[i].event_id)
-						var start_time = JSON.stringify(rows[i].startTime)
-						var email = JSON.stringify(rows[i].email)
-						var enrollment_id = JSON.stringify(rows[i].enrollment_id)
-						var firstname = JSON.stringify(rows[i].firstName)
-						var lastname = JSON.stringify(rows[i].lastName)
-						var status = JSON.stringify(rows[i].status)
-						var locationname = JSON.stringify(rows[i].name)
-						var contactid = JSON.stringify(rows[i].contact_id)
-						var score = JSON.stringify(rows[i].score)
-						var records = [event_id, start_time, email, enrollment_id, firstname, lastname, status, locationname, contactid, score]
+	// database.pool.query(sql_get_events_and_enrollments, (err, result) => {
+	// 	if(err) console.log(err.message);
+	// 	else console.log(result);
+	// })
+
+	// 2b. execute the SELECT query
+	database.pool.query(sql_get_events_and_enrollments, (err, rows, results) => {
+		// console.log("rows:" + JSON.stringify(rows))
+		// 2c. Assign results of query to variables to insert into subsequent INSERT query (inserting into table: enrollmentrefresh)
+		for(i=1; i <= Object.keys(rows).length; i++){
+			if(rows[i] != undefined){
+				for(var i in rows) {
+					var event_id = JSON.stringify(rows[i].event_id)
+					var start_time = JSON.stringify(rows[i].startTime)
+					var email = JSON.stringify(rows[i].email)
+					var enrollment_id = JSON.stringify(rows[i].enrollment_id)
+					var firstname = JSON.stringify(rows[i].firstName)
+					var lastname = JSON.stringify(rows[i].lastName)
+					var status = JSON.stringify(rows[i].status)
+					var locationname = JSON.stringify(rows[i].name)
+					var contactid = JSON.stringify(rows[i].contact_id)
+					var score = JSON.stringify(rows[i].score)
+					// var urlname = JSON.stringify(rows[i].urlName)
+					// var urlname = urlname.replace('"\\"', '')
+					var records = [event_id, start_time, email, enrollment_id, firstname, lastname, status, locationname, contactid, score]
 
 
-						var sql_insert_enrollments_and_events = database.sql3;
+					var sql_insert_enrollments_and_events = database.sql3;
 
-					database.pool.query(sql_insert_enrollments_and_events, [records], (err, result, fields) => {
-						if (err) {
-							console.log("Failed to insert records into enrollmentrefresh!!!")
-							console.log(err.message)
-							// res.sendStatus(500)
-							return
-						}
-						console.log(result);
-					})
-					}				
-				}	
-			}
-		})
-		const error = false;
-		if(!error){
-			resolve();
+				database.pool.query(sql_insert_enrollments_and_events, [records], (err, result, fields) => {
+					if (err) {
+						console.log("Failed to insert records into enrollmentrefresh!!!")
+						console.log(err.message)
+						// res.sendStatus(500)
+						return
+					}
+					console.log(result);
+					// console.log("Number of rows affected : " + result.affectedRows);
+    				// console.log("Number of records affected with warning : " + result.warningCount);
+    				// console.log("Message from MySQL Server : " + result.message);
+					// res.end()
+				})
+				}				
+			}	
 		}
-		else {
-			reject('Error:Something went wrong in get_learndot_events_enrollments!')
-		}
-	})	
+	})
 }
  // STEP 3
 function deleteFromELRPrereqs() {
-	return new Promise((resolve, reject) => {
+	// create the DELETE query and set to variable
+	let sql_delete_events_and_enrollments = database2.sql4;
 
-		// create the DELETE query and set to variable
-		let sql_delete_events_and_enrollments = database2.sql4;
-
-		// execute the DELETE query
-		database2.pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
-			if (err) {
-				console.log("Failed to delete records from tb_elr_prereqs!!!")
-				console.log(err)
-				res.sendStatus(500)
-				return
-			}
-			console.log("Deleted the existing data from the tb_elr_prereqs table");
-			// res.end()
-		})
-
-		const error = false;
-		if(!error){
-			resolve();
+	// execute the DELETE query
+	database2.pool.query(sql_delete_events_and_enrollments, (err, results, fields) => {
+		if (err) {
+			console.log("Failed to delete records from tb_elr_prereqs!!!")
+			console.log(err)
+			res.sendStatus(500)
+			return
 		}
-		else {
-			reject('Error:Something went wrong in deleteFromELRPrereqs!')
-		}
-	})	
+		console.log("Deleted the existing data from the tb_elr_prereqs table");
+		// res.end()
+	})
 }
 
 function deleteFromELRResults() {
-	return new Promise((resolve, reject) => {
 	// create the DELETE query and set to variable
 	let sql_delete_tb_elr_results = database.sql8;
 
@@ -140,23 +134,13 @@ function deleteFromELRResults() {
 		console.log("Deleted the existing data from the tb_elr_results table");
 		// res.end()
 	})
-	const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in deleteFromELRResults!')
-		}
-	})	
 }
 
 // STEP 4
 // create a function to select emails from enrollmentrefresh table and use as criteria in SELECT from eLearningRecords table
 // then take the results from the eLearningRecords table and insert into tb_elr_prereqs table
 function get_elearningrecords(){
-	return new Promise((resolve, reject) => {
-
-	var sql_getemails = `SELECT email, event_id, enrollment_id, firstname, lastname, status FROM enrollmentrefresh;`;
+	var sql_getemails = database.sql5;
 
     // execute the query
     database.pool.query(sql_getemails, (err, rows, results)=>{
@@ -172,30 +156,7 @@ function get_elearningrecords(){
 					var records2 = [email]
 
 					// console.log(email)
-                    const sql_getelr = `SELECT
-										registrationID,
-										courseName,
-										email
-										FROM
-										eLearningRecords
-										WHERE
-										email = ?
-										AND
-										(
-										SCORMLESSONSTATUS LIKE 'passed'
-										OR 
-										registrationstatus LIKE 'PASSED'
-										)
-										AND
-										(
-										(courseName LIKE '%Fundamentals%' AND courseName LIKE '%Part 3%')
-										OR 
-										courseName LIKE '%Creating Dashboards%'
-										OR 
-										courseName LIKE '%Advanced Searching%'
-										OR 
-										courseName LIKE '%Core Consultant Labs%'
-										);`;
+                    const sql_getelr = database2.sql6;
 
                     database2.pool.query(sql_getelr, [records2], (err, rows, results)=>{
 						var rowcount = Object.keys(rows).length
@@ -211,7 +172,6 @@ function get_elearningrecords(){
 										// console.log("j - " + j + " - email:" + el_email + " - coursename: " + el_coursename + " - reg_id: " + el_regid + ";")
 										// console.log(el_email, el_coursename)
 										var records3 = [el_email, el_coursename, el_regid]
-										console.log(records3)
             							// Query to insert results from sql_get_events_and_enrollments into the enrollmentsrefresh table
                                     	var sql_insert_elr_results = 
                                     	    database.sql7;
@@ -237,19 +197,9 @@ function get_elearningrecords(){
             }			
         }	
     })	
-
-	const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in get_elearningrecords!')
-		}
-	})
 }
 
 function delete_learndot() {
-	return new Promise((resolve, reject) => {
 	var delete_learndotenrollments = 'DELETE FROM tb_enrollments_learndot';
 	// execute the DELETE query
 	database.pool.query(delete_learndotenrollments, (err, results, fields) => {
@@ -262,19 +212,10 @@ function delete_learndot() {
 		console.log("Deleted the existing data from the tb_enrollments_learndot table");
 		// res.end()
 	})
-	const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in delete_learndot!')
-		}
-	})
 }
 
 // Refresh the tb_learndot_enrollments table
 function get_learndot(){
-	return new Promise((resolve, reject) => {
 	var sql_getemails = database.sql5;
 
     // execute the query
@@ -368,19 +309,10 @@ function get_learndot(){
                 }				
             }			
         }	
-    })
-	const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in get_learndot!')
-		}
-	})	
+    })	
 }
 
 function delete_credly() {
-	return new Promise((resolve, reject) => {
 	var sql_delete_credly = `DELETE FROM tb_credlybadgeresult;`
 	// DELETE EXISTING DATA FROM THE tb_credlybadgeresult table ===========================================================
 	database.pool.query(sql_delete_credly, (err, results, fields) => {
@@ -393,18 +325,11 @@ function delete_credly() {
 		console.log("Deleted the existing data from the tb_credlybadgeresult table");
 		// res.end()
 	})
-		const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in delete_credly!')
-		}
-	})	
+
 }
 
 function get_credly() {
-	return new Promise((resolve, reject) => {
+	
 	// GET DATA FROM THE CREDLY API =====================================================================================
 		var options = {
 		'method': 'GET',
@@ -460,38 +385,7 @@ function get_credly() {
 		console.log('/fetch_badges json returned')
 		// res.send(body)
 		})
-		const error = false;
-		if(!error){
-			resolve();
-		}
-		else {
-			reject('Error:Something went wrong in get_credly!')
-		}
-	})	
-}		
-	
-function update_1() {
-
-	database.pool.query(`UPDATE tb_prereqs pre SET pre.F3 = 'NO';`, (err, results, fields) => {
-		if (err) console.log(err.message);
-		else console.log("update_1 successful!");
-	});
-}
-
-function refresh_prereqs() {
-	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
- 
-        if(err) {
-            // req.flash('error', err);
-            console.log(err.message)
-            // 
-            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:''});   
-        } else {
-            // 
-            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
-        }
-    });
-}
+	}										
 
 // res.render("splunku_enrollments", {
 // title: "Splunk Core Implementation Prerequisite Checker",
@@ -501,74 +395,14 @@ async function fnAsync() {
 	await get_learndot_events_enrollments();
 	await deleteFromELRResults();
 	await get_elearningrecords();
-	// await get_credly();
-	// await delete_learndot();
-	// await get_learndot();
-	// await delete_credly();
-	// get_credly();
-}
-
-function setF3toNO(){
-	return new Promise((resolve, reject) => {
-		database.pool.query(`UPDATE tb_prereqs pre SET pre.ASnR = 'NO';`)
-		console.log('ASnR column set to "NO"')
-		resolve();
-	})	
-}
-
-function setF3toYES1() {
-	return new Promise((resolve, reject) => {
-		database.pool.query(`UPDATE tb_prereqs pre
-		INNER JOIN tb_elr_results elr on pre.email = elr.email
-		SET pre.F3 = 'YES'
-		WHERE elr.coursename LIKE "%Fundamentals%" AND elr.coursename LIKE "%Part 3%";`)
-		console.log('ASnR column updated for "YES" - SplunkU')
-		resolve();
-	})
-}
-
-function setF3toYES2() {
-	return new Promise((resolve, reject) => {
-		database.pool.query(`UPDATE tb_prereqs pre
-		INNER JOIN tb_enrollments_learndot ld on pre.email = ld.email
-		SET pre.F3 = 'YES'
-		WHERE ld.coursename LIKE "%Fundamentals%" AND ld.coursename LIKE "%Part 3%";`)
-		console.log('ASnR column updated for "YES" - Learndot')
-	})
-}
-
-async function updateData() {
-	await setF3toNO();
-	await setF3toYES1();
-	await setF3toYES2();
-
+	await get_credly();
+	await delete_learndot();
+	get_learndot();
 }
 
 router.get("/prereqcheck", (req, res) => {
-	// fnAsync();
-	// get_elearningrecords();
-
-	// delete_learndot();
-	get_learndot();
-	res.send("Success!!")
-});
-
-router.get("/enrollments", (req, res) => {
 	fnAsync();
-	updateData();
-	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
- 
-        if(err) {
-            // req.flash('error', err);
-            console.log(err.message)
-            // 
-            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:''});   
-        } else {
-            // 
-			console.log('enrollments loaded!')
-            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
-        }
-    });	
+	res.send("Success!!")
 });
 
 module.exports = router;

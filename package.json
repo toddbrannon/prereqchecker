@@ -21,7 +21,6 @@
     "node-fetch": "^3.0.0",
     "nodemon": "^2.0.13",
     "prettyjson": "^1.2.1",
-    "request": "^2.88.2",
-    "util": "^0.12.4"
+    "request": "^2.88.2"
   }
 }
