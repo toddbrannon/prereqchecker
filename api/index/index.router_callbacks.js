@@ -470,6 +470,22 @@ function refresh_prereqs() {
 // res.render("splunku_enrollments", {
 // title: "Splunk Core Implementation Prerequisite Checker",
 
+router.get("/prereqcheck", (req, res) => {
+	
+	// res.sendStatus(500)
+	// res.send("Success!!")
+});
+
+function getAll() {
+	deleteEventsAndEnrollments();
+	setTimeout(deleteFromELRResults, 1000);
+	setTimeout(delete_learndot, 1500);
+	setTimeout(delete_credly, 2000);
+	setTimeout(get_elearningrecords, 3000);
+	setTimeout(get_credly,4000);
+	setTimeout(get_learndot, 5000);
+}
+
 async function fnAsync() {
 	await deleteEventsAndEnrollments(get_learndot_events_enrollments);
 	await deleteFromELRResults();
@@ -488,7 +504,8 @@ router.get("/prereqcheck", (req, res) => {
 });
 
 router.get("/enrollments", (req, res) => {
-	fnAsync();
+	//fnAsync();
+	getAll();
 	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
  
         if(err) {

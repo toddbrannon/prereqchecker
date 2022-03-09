@@ -400,6 +400,8 @@ async function fnAsync() {
 	get_learndot();
 }
 
+
+
 router.get("/prereqcheck", (req, res) => {
 	fnAsync();
 	res.send("Success!!")
