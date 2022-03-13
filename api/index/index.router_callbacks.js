@@ -9,6 +9,7 @@ var request = require('request');
 const database = require("../../config/database");
 const database2 = require("../../config/database2");
 const res = require('express/lib/response');
+const { render } = require('express/lib/response');
 
 // Main landing page GET route ............................................................................................
 // ........................................................................................................................
@@ -46,31 +47,27 @@ function get_learndot_events_enrollments() {
 		// 2a. create the query and set to variable
 		let sql_get_events_and_enrollments = database.sql2;
 
-		database.pool.query(sql_get_events_and_enrollments, (error, elements, rows) => {
-			if(error){
-				return reject(error);
-			}
-			return resolve(elements);
-			
-		})
-	})
-		
-
 		// 2b. execute the SELECT query
 		database.pool.query(sql_get_events_and_enrollments, (err, rows, results) => {
 			// console.log("rows:" + JSON.stringify(rows))
 			// 2c. Assign results of query to variables to insert into subsequent INSERT query (inserting into table: enrollmentrefresh)
 			for(i=1; i <= Object.keys(rows).length; i++){
+				
 				if(rows[i] != undefined){
 					for(var i in rows) {
 						var event_id = JSON.stringify(rows[i].event_id)
 						var start_time = JSON.stringify(rows[i].startTime)
 						var email = JSON.stringify(rows[i].email)
+						var email = email.replace(/"/g, "")
 						var enrollment_id = JSON.stringify(rows[i].enrollment_id)
 						var firstname = JSON.stringify(rows[i].firstName)
+						var firstname = firstname.replace(/"/g, "")
 						var lastname = JSON.stringify(rows[i].lastName)
+						var lastname = lastname.replace(/"/g, "")
 						var status = JSON.stringify(rows[i].status)
+						var status = status.replace(/"/g, "")
 						var locationname = JSON.stringify(rows[i].name)
+						var locationname = locationname.replace(/"/g, "")
 						var contactid = JSON.stringify(rows[i].contact_id)
 						var score = JSON.stringify(rows[i].score)
 						// var urlname = JSON.stringify(rows[i].urlName)
@@ -87,13 +84,22 @@ function get_learndot_events_enrollments() {
 							// res.sendStatus(500)
 							return
 						}
-						console.log(result);
+						// console.log(result);
 					})
 					}				
 				}	
 			}
 		})
+		const error = false;
+		if(!error){
+			resolve();
+		}
+		else {
+			reject('Error:Something went wrong in get_learndot_events_enrollments!')
+		}
+	})		
 }
+
  // STEP 3
 function deleteFromELRPrereqs() {
 	return new Promise((resolve, reject) => {
@@ -159,8 +165,8 @@ function get_elearningrecords(){
 
     // execute the query
     database.pool.query(sql_getemails, (err, rows, results)=>{
-		// console.log("getting the emails from enrollmentrefresh table")
-		// console.log("sql_getemails" + Object.keys(rows).length)
+		console.log("getting the emails from enrollmentrefresh table")
+		console.log("sql_getemails" + Object.keys(rows).length)
         for(i=1;i <= Object.keys(rows).length; i++){
             if(rows[i] != undefined){
                 for(var i in rows){
@@ -377,6 +383,10 @@ function delete_credly() {
 	})	
 }
 
+function getEnrolledEmail(){
+	var sql = 'SELECT email from enrollmentrefresh'
+}
+
 function get_credly() {
 	return new Promise((resolve, reject) => {
 	// GET DATA FROM THE CREDLY API =====================================================================================
@@ -414,20 +424,20 @@ function get_credly() {
 		badge_results.forEach(badge_result => {
 			var recipient_email = badge_result[1]
 			var badge_id = badge_result[2]
-			console.log(recipient_email)
-			console.log(badge_id)
+			// console.log(recipient_email)
+			// console.log(badge_id)
 			
-			var sql_insert_credly = `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id) VALUES ('${recipient_email}', '${badge_id}');`
+			var sql_insert_credly = `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id) VALUES (?, ?);`
 			
 			// RUN THE QUERY
-			database.pool.query(sql_insert_credly, (err, results, fields) => {
+			database.pool.query(sql_insert_credly, [recipient_email, badge_id], (err, results, fields) => {
 				if (err) {
 					console.log("Failed to insert credly data!!!")
 					console.log(err)
 					res.sendStatus(500)
 					return
 				}
-				console.log("Inserted a new Credly record with id: " + results.insertId);
+				// console.log("Inserted a new Credly record with id: " + results.insertId);
 				// res.end()
 			})			
 		})		
@@ -452,20 +462,7 @@ function update_1() {
 	});
 }
 
-function refresh_prereqs() {
-	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
- 
-        if(err) {
-            // req.flash('error', err);
-            console.log(err.message)
-            // 
-            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:''});   
-        } else {
-            // 
-            res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
-        }
-    });
-}
+
 
 // res.render("splunku_enrollments", {
 // title: "Splunk Core Implementation Prerequisite Checker",
@@ -478,13 +475,23 @@ router.get("/prereqcheck", (req, res) => {
 
 function getAll() {
 	deleteEventsAndEnrollments();
-	setTimeout(deleteFromELRResults, 1000);
-	setTimeout(delete_learndot, 1500);
-	setTimeout(delete_credly, 2000);
-	setTimeout(get_elearningrecords, 3000);
-	setTimeout(get_credly,4000);
-	setTimeout(get_learndot, 5000);
+	setTimeout(get_learndot_events_enrollments, 1000)
+	setTimeout(deleteFromELRResults, 2500);
+	setTimeout(delete_learndot, 3000);
+	setTimeout(delete_credly, 3500);
+	setTimeout(get_elearningrecords, 4500);
+	setTimeout(get_credly,6500);
+	setTimeout(get_learndot, 8500);
 }
+
+function deleteAll() {
+	deleteEventsAndEnrollments();
+	deleteFromELRResults();
+	delete_learndot();
+	delete_credly();
+}
+
+
 
 async function fnAsync() {
 	await deleteEventsAndEnrollments(get_learndot_events_enrollments);
@@ -498,14 +505,13 @@ async function fnAsync() {
 }
 
 router.get("/prereqcheck", (req, res) => {
-	deleteEventsAndEnrollments();
-	get_learndot_events_enrollments();
+	// deleteEventsAndEnrollments();
+	// get_learndot_events_enrollments();
+	get_credly();
 	res.send("Success!!")
 });
 
-router.get("/enrollments", (req, res) => {
-	//fnAsync();
-	getAll();
+function renderResults() {
 	database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
  
         if(err) {
@@ -519,6 +525,57 @@ router.get("/enrollments", (req, res) => {
             res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
         }
     });	
+}
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+ 
+
+  
+
+router.get("/enrollments", (req, res) => {
+	//fnAsync();
+	deleteAll();
+	sleep(1000).then(() => {
+		console.log("Old data deleted!");
+	})
+	sleep(2500).then(()=> {
+		get_learndot_events_enrollments();
+		console.log("Enrollments refreshed!");
+	})
+	sleep(3500).then(() => {
+		get_elearningrecords();
+		console.log("Eleaning records refreshed!")
+	})
+	sleep(5000).then(() => {
+		get_learndot();
+		console.log("Learndot records refreshed!")
+	})
+	sleep(6500).then(() => {
+		get_credly();
+		console.log("Credly records refreshed!")
+	})
+	// sleep(8000).then(() => {
+	// 	();
+	// 	console.log("Eleaning records refreshed!")
+	// })
+	sleep(10000).then(()=> {
+		database.pool.query('SELECT * FROM tb_prereqs;',function(err,rows)     {
+	 
+			if(err) {
+				// req.flash('error', err);
+				console.log(err.message)
+				// 
+				res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:''});   
+			} else {
+				// 
+				console.log('enrollments loaded!')
+				res.render('enrollments',{title: "Splunk Core Implementation Prerequisite Checker", data:rows});
+			}
+		})	
+	})
 });
 
 module.exports = router;
