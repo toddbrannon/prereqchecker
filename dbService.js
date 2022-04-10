@@ -345,12 +345,13 @@ class DbService {
                                                         if(err) console.log(err.message);
                                                         console.log("results.length = " + results.length);
                                                         console.log("rows.length = " + rows.length);
-                                                        for(i=0; i < results.length; i++){
+                                                        for(i=0; i < rows.length; i++){
                                                             if(rows[i] != undefined){
+                                                                // console.log("rows[i] is not undefined!")
                                                                 for(var i in rows){
-                                                                    // console.log("Adding " + rows[i].email + " to emailArray.");
+                                                                    // console.log(rows[i].email);
                                                                     emailArray.push(rows[i].email);
-                                                                    console.log("Step " + (1 + i++) + " of " + rows.length + ".");
+                                                                    
                                                                     console.log(rows[i].email + " pushed to emailArray");
                                                                     // Insert into a table of emails from enrollment refresh in SplunkU db to join to 
                                                                     var queryInsert = `INSERT INTO tb_enrollment_emails (email) VALUES (?);`
