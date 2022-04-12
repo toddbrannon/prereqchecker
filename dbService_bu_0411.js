@@ -382,6 +382,39 @@ class DbService {
             console.log(error);
         }
     }
+    async pushEmails(){
+        try {
+            const response = await new Promise((resolve, reject) => {
+            const query4 = "SELECT email FROM enrollmentrefresh;"
+            var emailArray = []
+            connection.query(query4, (err, rows, results) => {
+                if(err) console.log(err.message);
+                for(i=0; i < results.length; i++){
+                    if(rows[i] != undefined){
+                        for(var i in rows){
+                            console.log(rows[i].email);
+                            emailArray.push(rows[i].email)
+                            // Insert into a table of emails from enrollment refresh in SplunkU db to join to 
+                            var queryInsert = `INSERT INTO tb_enrollment_emails (email) VALUES (?);`
+                            connection2.query(queryInsert, emailArray[i], (err, rows, results) => {
+                            
+                            if(err) console.log(err.message);
+                            console.log("inserted " + i + " records into tb_enrollment_emails");
+                            
+                            })
+                        }
+                    }
+                }
+                
+            });
+            return(response); 
+            
+        });
+        } catch(error) {
+            console.log(error)
+        }
+        console.log("pushEmails complete!")
+    }
 }
 
 module.exports = DbService;
