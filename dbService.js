@@ -47,7 +47,7 @@ class DbService {
                             for(var i in rows){
                                 emailArray.push(rows[i].email)
                             }
-                            console.log(emailArray);
+                            // console.log(emailArray);
                         }
                     }
                     // if (err) reject(new Error(err.message));
@@ -63,6 +63,17 @@ class DbService {
     }
 
     
+// 1. Delete and repopulate enrollmentrefresh - DONE
+// 2. Delete old data from tb_elr_results - DONE
+// 3. Get emails fom enrollmentrefresh to use as criteria to get data from   - DONE
+// 4. Insert new records into tb_elr_results
+// 4. Get credly badge results from api - DONE
+// 5. Delete old records from tb_credlybadgeresult - DONE
+// 6. Insert new records into tb_credlybadgeresult - DONE
+// 7.
+// 8.
+// 9. Delete old records from tb_prereqs - DONE
+// 10. Insert new records into tb_prereqs - DONE
 
     async getAllData() {
         try {
@@ -181,17 +192,17 @@ class DbService {
                 connection.query(query1, (err, results) => {
                     if (err) console.log(err.message);
                     // if (err) reject(new Error(err.message));
-                    console.log("Step 1 complete!");
+                    console.log("Step 1 (query 1 - enrollmentrefesh delete) complete!");
                     resolve(results);
                     // INSERT INTO enrollmentrefresh
                     connection.query(query2, (err, results) => {
                         if(err) console.log(err.message);
-                        console.log("Step 2 complete!");
+                        console.log("Step 2 (query 2 - insert into enrollmentrefresh) complete!");
                         resolve(results);
                         // DELETE FROM tb_elr_results
                         connection.query(query3, (err, results) => {
                             if(err) console.log(err.message);
-                            console.log("Step 3 complete!");
+                            console.log("Step 3 (query 3 - delete from tb_elr_refesh) complete!");
                             resolve(results);
 
                             // INSERT INTO tb_elr_results
@@ -262,16 +273,16 @@ class DbService {
                                     
                                 }  
                                    
-                                console.log("Step 4 complete!");
+                                console.log("Step 4 (query 4 - select email from enrollmentrefresh, 4b - get eLearningRecords, and 4c - insert into tb_elr_results) complete!");
                                 resolve(results);   
                                 connection.query(query5, (err, rows, results) => {
                                     if(err) console.log(err.message);
-                                    console.log("Step 5 complete!");
+                                    console.log("Step 5 (query 5 - DELETE FROM tb_credlybadgeresult) complete!");
                                     resolve(results);
                                     function logArray(emailArray){
                                         emailArray.forEach(x => console.log("results: " + x));
                                       }
-                                      logArray(emailArray);
+                                    //   logArray(emailArray);
 
                                       function checkBadges(emailArray){
                                           emailArray.forEach(x => {
@@ -302,10 +313,12 @@ class DbService {
                                                             var user_id = badge_result[5]
                                                         connection.query(query6, [recipient_email, badge_id, badge_name, badge_state, user_id], (err, rows, results) => {
                                                             if(err) console.log(err.message);
+                                                            
                                                             resolve(results);
                                                             
                                                         })
                                                     })
+                                                    
                                                         // function logArray(badge_results){
                                                         //     badge_results.forEach(x => console.log("results: " + x));
                                                         //   }
@@ -313,7 +326,9 @@ class DbService {
                                                         //   console.log("Fetched Credly data for " + x + " (" + i + ") --> ");
                                                           
                                               })
+                                              
                                           });
+                                          console.log("Step 6 (query 6 - INSERT INTO tb_credlybadgeresult) complete!")
                                       }
 
                                       checkBadges(emailArray);
@@ -322,29 +337,29 @@ class DbService {
                                 })
                                 connection.query(query7, (err, results) => {
                                     if(err) console.log(err.message);
-                                    console.log("Step 7 complete!");
+                                    console.log("Step 7 (query 7 - DELETE FROM tb_prereqs) complete!");
                                     resolve(results);
                                     connection.query(query8, (err, results) => {
                                         if(err) console.log(err.message);
-                                        console.log("Step 8 complete!");
+                                        console.log("Step 8 (query 8) complete!");
                                         resolve(results);
                                         connection.query(query9, (err, results) => {
                                             if(err) console.log(err.message);
-                                            console.log("Step 9 complete!");
+                                            console.log("Step 9 (query 9) complete!");
                                             resolve(results);
                                             connection.query(query10, (err, results) => {
                                                 if(err) console.log(err.message);
-                                                console.log("Step 10 complete!");
+                                                console.log("Step 10 (query 10) complete!");
                                                 resolve(results);
                                                 connection.query(query11, (err, results) => {
                                                     if(err) console.log(err.message);
-                                                    console.log("Step 11 complete!");
+                                                    console.log("Step 11 (query 11) complete!");
                                                     resolve(results);
                                                     var emailArray = []
                                                     connection.query(query12, (err, rows, results) => {
                                                         if(err) console.log(err.message);
-                                                        console.log("results.length = " + results.length);
-                                                        console.log("rows.length = " + rows.length);
+                                                        // console.log("results.length = " + results.length);
+                                                        // console.log("rows.length = " + rows.length);
                                                         for(i=0; i < rows.length; i++){
                                                             if(rows[i] != undefined){
                                                                 // console.log("rows[i] is not undefined!")
@@ -352,20 +367,24 @@ class DbService {
                                                                     // console.log(rows[i].email);
                                                                     emailArray.push(rows[i].email);
                                                                     
-                                                                    console.log(rows[i].email + " pushed to emailArray");
+                                                                    // console.log(rows[i].email + " pushed to emailArray");
                                                                     // Insert into a table of emails from enrollment refresh in SplunkU db to join to 
                                                                     var queryInsert = `INSERT INTO tb_enrollment_emails (email) VALUES (?);`
                                                                     connection2.query(queryInsert, emailArray[i], (err, rows, results) => {
                                                                     
                                                                     if(err) console.log(err.message);
-                                                                    
+           
                                                                     })
+                                                                    
                                                                 }
+                                                                console.log("Step 12 (query 12 & queryInsert) complete!"); 
+                                                                
                                                             }
                                                             
                                                         }
-                                                        console.log("inserted " + i + " records into tb_enrollment_emails");
+                                                        // console.log("inserted " + i + " records into tb_enrollment_emails");
                                                     });      
+                                                    
                                                 })
                                             })
                                         })
@@ -376,8 +395,10 @@ class DbService {
                     })
                 })
             });
+            
     //         // console.log(response);
             return response;
+            
         } catch(error){
             console.log(error);
         }
