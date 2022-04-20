@@ -62,6 +62,25 @@ class DbService {
         }
     }
 
+    async deleteEnrollmentRefresh() {
+        try {
+            const response = await new Promise((resolve, reject) => {
+                const deleteQry = "DELETE FROM enrollmentrefresh;"
+                // DELETE FROM enrollmentrefresh
+                connection.query(deleteQry, (err, results) => {
+                    if (err) console.log(err.message);
+                    // if (err) reject(new Error(err.message));
+                    console.log("Step 1 (query 1 - enrollmentrefesh delete) complete!");
+                    resolve(results);
+                })
+            });
+            // console.log(response);
+            return response;      
+        } catch(error){
+            console.log(error);
+        }
+    }
+
     
 // 1. Delete and repopulate enrollmentrefresh - DONE
 // 2. Delete old data from tb_elr_results - DONE

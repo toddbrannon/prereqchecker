@@ -14,7 +14,13 @@ const res = require('express/lib/response');
 
 const dbService = require('../../dbService');
 
-
+router.get('/delete', (req, res)=>{
+    const db = dbService.getDbServiceInstance();
+    const result = db.deleteEnrollmentRefresh();
+    result
+    .then(data => res.json({ data : data }))
+    .catch(err => console.log(err));
+})
 
 router.get('/getAll', (request, response) => {
     const db = dbService.getDbServiceInstance();
