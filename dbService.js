@@ -137,33 +137,33 @@ class DbService {
                                     AND 
                                     E.status NOT LIKE 'CANCELLED';`
                 const query3 = "DELETE FROM tb_elr_results;"
-                const query4 = "SELECT email FROM enrollmentrefresh;"
-                const query4c = `SELECT
-                                    registrationID,
-                                    courseName,
-                                    email
-                                    FROM
-                                    eLearningRecords
-                                    WHERE
-                                    email = ?
+                const query4a = "SELECT email FROM enrollmentrefresh;"
+                const query4c = `INSERT INTO tb_elr_results (registrationID, coursename, EMAIL) VALUES  (?, ?, ?);`
+                const query4d = "DELETE FROM tb_enrollments_learndot;"
+                const query4e = `SELECT
+                                    E.id AS registrationID,
+                                    LC.name AS courseName
+                                FROM
+                                    enrollment E
+                                INNER JOIN
+                                    learningcomponent LC ON E.component_id = LC.id
+                                INNER JOIN
+                                    contact C ON E.contact_id = C.id
+                                WHERE
+                                    C.email LIKE ?
+                                AND
+                                    E.status LIKE 'PASSED'
                                 AND
                                     (
-                                    SCORMLESSONSTATUS LIKE 'passed'
-                                    OR 
-                                    registrationstatus LIKE 'PASSED'
-                                    )
-                                AND
-                                (
-                                    (courseName LIKE '%Fundamentals%' AND courseName LIKE '%Part 3%')
-                                OR 
-                                    courseName LIKE '%Creating Dashboards%'
-                                OR 
-                                    courseName LIKE '%Advanced Searching%'
-                                OR 
-                                    courseName LIKE '%Core Consultant Labs%'
-                                );`
-                
-
+                                        (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+                                    OR
+                                        LC.name LIKE '%Creating Dashboards%'
+                                    OR
+                                        LC.name LIKE '%Advanced Searching%'
+                                    OR
+                                        LC.name LIKE '%Core Consultant Labs%'
+                                    );`
+                const query4f = `INSERT INTO tb_enrollments_learndot (registrationID, coursename, email) VALUES  (?, ?, ?);`
                 const query5 = "DELETE FROM tb_credlybadgeresult;"
                 const query6 = "INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES (?, ?, ?, ?, ?)"
                 const query7 = "DELETE FROM tb_prereqs;"
@@ -226,7 +226,7 @@ class DbService {
 
                             // INSERT INTO tb_elr_results
                             var emailArray = []
-                            connection.query(query4, (err, rows, results) => {
+                            connection.query(query4a, (err, rows, results) => {
                                 if(err) console.log(err.message);
                                 for(i=0; i < results.length; i++){
                                     if(rows[i] != undefined){
@@ -275,25 +275,33 @@ class DbService {
                                                                     const regID = rows[j].registrationID;
                                                                     const cName = rows[j].courseName;
                                                                     const elrEmail = rows[j].email;
-                                                                    var query4c = `INSERT INTO tb_elr_results (registrationID, coursename, EMAIL) VALUES  ("` + regID + `", "` + cName + `", "` + elrEmail + `");`
-                                                                    connection.query(query4c, (err, rows, results) => {
+                                                                    // var query4c = `INSERT INTO tb_elr_results (registrationID, coursename, EMAIL) VALUES  ("` + regID + `", "` + cName + `", "` + elrEmail + `");`
+                                                                    connection.query(query4c, [regID, cName, elrEmail], (err, rows, results) => {
                                                                     if(err) console.log(err.message);
                                                                     // resolve(results);
+                                                                        
                                                                 })
                                                             }
                                                         }
                                                     }
-                                                } 
+                                                }  
                                             })   
                                         }
-                                        // console.log(emailArray);
-                                        
+                                        // console.log(emailArray);    
                                     }
                                     
                                 }  
                                    
-                                console.log("Step 4 (query 4 - select email from enrollmentrefresh, 4b - get eLearningRecords, and 4c - insert into tb_elr_results) complete!");
+                                console.log("Step 4a (query 4a - select email from enrollmentrefresh) complete!")
+                                console.log("Step 4b (query 4b - get eLearningRecords) complete!")
+                                console.log("Step 4c (query 4c - insert into tb_elr_results) complete!");
                                 resolve(results);   
+                                // DELETE FROM tb_elr_results
+                                connection.query(query4d, (err, results) => {
+                                    if(err) console.log(err.message);
+                                    console.log("Step 4d (query 4d - delete from tb_learndot_enrollments) complete!");
+                                    resolve(results);
+                                })
                                 connection.query(query5, (err, rows, results) => {
                                     if(err) console.log(err.message);
                                     console.log("Step 5 (query 5 - DELETE FROM tb_credlybadgeresult) complete!");
