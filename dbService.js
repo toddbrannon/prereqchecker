@@ -301,6 +301,45 @@ class DbService {
                                     if(err) console.log(err.message);
                                     console.log("Step 4d (query 4d - delete from tb_learndot_enrollments) complete!");
                                     resolve(results);
+
+                                    //  Insert into tb_learndot_enrollments
+                                    var emailArray = []
+
+                                    connection.query(query4e, (err, rows, results) => {
+                                        if(err) console.log(err.message);
+                                            for(i=0; i < results.length; i++){
+                                                if(rows[i] != undefined){
+                                                    for(var i in rows){
+                                                    emailArray.push(rows[i].email)
+                                                        var regArray =[]
+                                                        connection.query(query4e, (err, rows, results) => {
+                                                            if(err) console.log(err.message);
+                                                            var rowcount = Object.keys(rows).length
+                                                            if(rowcount > 0){
+                                                                for(j=1; j <= rowcount; j++){
+                                                                    if(rows[j] != undefined){
+                                                                        for(var j in rows){
+                                                                            // regArray.push(rows[j].registrationID)
+                                                                            // console.log(rows[j].email + ', ' + rows[j].registrationID + ', ' + rows[j].courseName)
+                                                                            const regID = rows[j].registrationID;
+                                                                            const cName = rows[j].courseName;
+                                                                            const elrEmail = rows[j].email;
+                                                                            connection.query(query4f, [regID, cName, elrEmail], (err, rows, results) => {
+                                                                            if(err) console.log(err.message);
+                                                                                 
+                                                                        })
+                                                                    }
+                                                                }
+                                                            }
+                                                        }  
+                                                    })
+                                                }
+                                            }
+                                        }
+                                        console.log("Step 4d (query 4d - select email from enrollmentrefresh) complete!")
+                                        console.log("Step 4e (query 4e - get eLearningRecords) complete!")
+                                        console.log("Step 4f (query 4f - insert into tb_learndot_enrollments) complete!");
+                                    })
                                 })
                                 connection.query(query5, (err, rows, results) => {
                                     if(err) console.log(err.message);
