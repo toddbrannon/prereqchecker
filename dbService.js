@@ -140,29 +140,29 @@ class DbService {
                 const query4a = "SELECT email FROM enrollmentrefresh;"
                 const query4c = `INSERT INTO tb_elr_results (registrationID, coursename, EMAIL) VALUES  (?, ?, ?);`
                 const query4d = "DELETE FROM tb_enrollments_learndot;"
-                const query4e = `SELECT
-                                    E.id AS registrationID,
-                                    LC.name AS courseName
-                                FROM
-                                    enrollment E
-                                INNER JOIN
-                                    learningcomponent LC ON E.component_id = LC.id
-                                INNER JOIN
-                                    contact C ON E.contact_id = C.id
-                                WHERE
-                                    C.email LIKE ?
-                                AND
-                                    E.status LIKE 'PASSED'
-                                AND
-                                    (
-                                        (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
-                                    OR
-                                        LC.name LIKE '%Creating Dashboards%'
-                                    OR
-                                        LC.name LIKE '%Advanced Searching%'
-                                    OR
-                                        LC.name LIKE '%Core Consultant Labs%'
-                                    );`
+                // const query4e = `SELECT
+                //                     E.id AS registrationID,
+                //                     LC.name AS courseName
+                //                 FROM
+                //                     enrollment E
+                //                 INNER JOIN
+                //                     learningcomponent LC ON E.component_id = LC.id
+                //                 INNER JOIN
+                //                       contact C ON E.contact_id = C.id
+                //                 WHERE
+                //                     C.email LIKE ?
+                //                 AND
+                //                     E.status LIKE 'PASSED'
+                //                 AND
+                //                     (
+                //                         (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+                //                     OR
+                //                         LC.name LIKE '%Creating Dashboards%'
+                //                     OR
+                //                         LC.name LIKE '%Advanced Searching%'
+                //                     OR
+                //                         LC.name LIKE '%Core Consultant Labs%'
+                //                     );` 
                 const query4f = `INSERT INTO tb_enrollments_learndot (registrationID, coursename, email) VALUES  (?, ?, ?);`
                 const query5 = "DELETE FROM tb_credlybadgeresult;"
                 const query6 = "INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES (?, ?, ?, ?, ?)"
@@ -205,7 +205,15 @@ class DbService {
                                     ld.coursename LIKE "%Fundamentals%" 
                                 AND 
                                     ld.coursename LIKE "%Part 3%";`
-                const query12 = "SELECT email FROM enrollmentrefresh;"
+                const query12 = `UPDATE 
+                                    tb_prereqs pre
+                                INNER JOIN
+                                    tb_enrollments_learndot ld on pre.email = ld.email
+                                SET
+                                    pre.ASnR = "YES"
+                                WHERE
+                                    ld.coursename LIKE "%Advanced Searching%";`
+                // const query12 = "SELECT email FROM enrollmentrefresh;"
 
                 // DELETE FROM enrollmentrefresh
                 connection.query(query1, (err, results) => {
@@ -304,15 +312,39 @@ class DbService {
 
                                     //  Insert into tb_learndot_enrollments
                                     var emailArray = []
+                                    
 
-                                    connection.query(query4e, (err, rows, results) => {
+                                    connection.query(query4a, (err, rows, results) => {
                                         if(err) console.log(err.message);
                                             for(i=0; i < results.length; i++){
                                                 if(rows[i] != undefined){
                                                     for(var i in rows){
                                                     emailArray.push(rows[i].email)
+                                                    const query4e = `SELECT
+                                                                        E.id AS registrationID,
+                                                                        LC.name AS courseName
+                                                                    FROM
+                                                                        enrollment E
+                                                                    INNER JOIN
+                                                                        learningcomponent LC ON E.component_id = LC.id
+                                                                    INNER JOIN
+                                                                        contact C ON E.contact_id = C.id
+                                                                    WHERE
+                                                                        C.email = ` + "'" + emailArray[i] + "'" +
+                                                                    `AND
+                                                                        E.status LIKE 'PASSED'
+                                                                    AND
+                                                                        (
+                                                                            (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+                                                                        OR
+                                                                            LC.name LIKE '%Creating Dashboards%'
+                                                                        OR
+                                                                            LC.name LIKE '%Advanced Searching%'
+                                                                        OR
+                                                                            LC.name LIKE '%Core Consultant Labs%'
+                                                                        );`
                                                         var regArray =[]
-                                                        connection.query(query4e, (err, rows, results) => {
+                                                        connection.query(query4e, emailArray[i], (err, rows, results) => {
                                                             if(err) console.log(err.message);
                                                             var rowcount = Object.keys(rows).length
                                                             if(rowcount > 0){
@@ -338,7 +370,7 @@ class DbService {
                                         }
                                         console.log("Step 4d (query 4d - select email from enrollmentrefresh) complete!")
                                         console.log("Step 4e (query 4e - get eLearningRecords) complete!")
-                                        console.log("Step 4f (query 4f - insert into tb_learndot_enrollments) complete!");
+                                        console.log("Step 4f (query 4f - insert into tb_enrollments_learndot) complete!");
                                     })
                                 })
                                 connection.query(query5, (err, rows, results) => {
@@ -383,16 +415,8 @@ class DbService {
                                                             resolve(results);
                                                             
                                                         })
-                                                    })
-                                                    
-                                                        // function logArray(badge_results){
-                                                        //     badge_results.forEach(x => console.log("results: " + x));
-                                                        //   }
-                                                        //   logArray(badge_results)
-                                                        //   console.log("Fetched Credly data for " + x + " (" + i + ") --> ");
-                                                          
-                                              })
-                                              
+                                                    })      
+                                              })                                           
                                           });
                                           console.log("Step 6 (query 6 - INSERT INTO tb_credlybadgeresult) complete!")
                                       }
@@ -407,7 +431,7 @@ class DbService {
                                     resolve(results);
                                     connection.query(query8, (err, results) => {
                                         if(err) console.log(err.message);
-                                        console.log("Step 8 (query 8) complete!");
+                                        console.log("Step 8 (query 8 - INSERT names, emails into tb_prereqs) complete!");
                                         resolve(results);
                                         connection.query(query9, (err, results) => {
                                             if(err) console.log(err.message);
@@ -424,31 +448,8 @@ class DbService {
                                                     var emailArray = []
                                                     connection.query(query12, (err, rows, results) => {
                                                         if(err) console.log(err.message);
-                                                        // console.log("results.length = " + results.length);
-                                                        // console.log("rows.length = " + rows.length);
-                                                        for(i=0; i < rows.length; i++){
-                                                            if(rows[i] != undefined){
-                                                                // console.log("rows[i] is not undefined!")
-                                                                for(var i in rows){
-                                                                    // console.log(rows[i].email);
-                                                                    emailArray.push(rows[i].email);
-                                                                    
-                                                                    // console.log(rows[i].email + " pushed to emailArray");
-                                                                    // Insert into a table of emails from enrollment refresh in SplunkU db to join to 
-                                                                    var queryInsert = `INSERT INTO tb_enrollment_emails (email) VALUES (?);`
-                                                                    connection2.query(queryInsert, emailArray[i], (err, rows, results) => {
-                                                                    
-                                                                    if(err) console.log(err.message);
-           
-                                                                    })
-                                                                    
-                                                                }
-                                                                console.log("Step 12 (query 12 & queryInsert) complete!"); 
-                                                                
-                                                            }
-                                                            
-                                                        }
-                                                        // console.log("inserted " + i + " records into tb_enrollment_emails");
+                                                        console.log("Step 12 (query 12 - update ANsR column) complete!");
+                                                        resolve(results);
                                                     });      
                                                     
                                                 })
