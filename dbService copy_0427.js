@@ -34,65 +34,23 @@ class DbService {
         return instance ? instance : new DbService();
     }
 
-    // pass the emails from enrollmentsrefresh to a JS array
-    async getArray(){
-        try {
-            const response = await new Promise((resolve, reject) => {
-                const query1 = "SELECT * FROM enrollmentrefresh;"
-                var emailArray = []
-                connection.query(query1, (err, rows, results) => {
-                    if (err) console.log(err.message);
-                    for(i=0; i < results.length; i++){
-                        if(rows[i] != undefined){
-                            for(var i in rows){
-                                emailArray.push(rows[i].email)
-                            }
-                            // console.log(emailArray);
-                        }
-                    }
-                    // if (err) reject(new Error(err.message));
-                    console.log("SELECT query run successfully (query1)");
-                    resolve(results);
-                })
-            });
-            // console.log(response);
-            return response;      
-        } catch(error){
-            console.log(error);
-        }
-    }
-
-    async deleteEnrollmentRefresh() {
-        try {
-            const response = await new Promise((resolve, reject) => {
-                const deleteQry = "DELETE FROM enrollmentrefresh;"
-                // DELETE FROM enrollmentrefresh
-                connection.query(deleteQry, (err, results) => {
-                    if (err) console.log(err.message);
-                    // if (err) reject(new Error(err.message));
-                    console.log("Step 1 (query 1 - enrollmentrefesh delete) complete!");
-                    resolve(results);
-                })
-            });
-            // console.log(response);
-            return response;      
-        } catch(error){
-            console.log(error);
-        }
-    }
-
-    
-// 1. Delete and repopulate enrollmentrefresh - DONE
-// 2. Delete old data from tb_elr_results - DONE
-// 3. Get emails fom enrollmentrefresh to use as criteria to get data from   - DONE
-// 4. Insert new records into tb_elr_results
-// 4. Get credly badge results from api - DONE
-// 5. Delete old records from tb_credlybadgeresult - DONE
-// 6. Insert new records into tb_credlybadgeresult - DONE
-// 7.
-// 8.
-// 9. Delete old records from tb_prereqs - DONE
-// 10. Insert new records into tb_prereqs - DONE
+// Step 1 (query 1 - enrollmentrefesh delete) - DELETE
+// Step 2 (query 2 - insert into enrollmentrefresh) - INSERT(NESTED SELECT)
+// Step 3 (query 3 - delete from tb_elr_refesh) - DELETE
+// Step 4a (query 4a - select email from enrollmentrefresh) - SELECT
+// Step 4b (query 4b - get eLearningRecords) - SELECT (DEPENDENT UPON 4a)
+// Step 4c (query 4c - insert into tb_elr_results) - INSERT (DEPENDENT UPON 4b)
+// Step 4d (query 4d - delete from tb_learndot_enrollments) - DELETE
+// Step 4e (query 4e - get eLearningRecords) - SELECT
+// Step 4f (query 4f - insert into tb_enrollments_learndot) - INSERT (DEPENDENT UPON 4e)
+// Step 5 (query 5 - DELETE FROM tb_credlybadgeresult) - DELETE
+// Step 6 (query 6 - INSERT INTO tb_credlybadgeresult) - INSERT (DEPENDENT UPON API CALL)
+// Step 7 (query 7 - DELETE FROM tb_prereqs) - DELETE
+// Step 8 (query 8 - INSERT names, emails into tb_prereqs) - INSERT (DEPENDENT UPON 2)
+// Step 9 (query 9 - update ANsR column to 'NO') - UPDATE (DEPENDENT UPON 4f)
+// Step 10 (query 10 - update F3 to 'YES' from tb_elr_results) - UPDATE (DEPENDENT UPON 4c)
+// Step 11 (query 11 - update F3 to 'YES' from tb_enrollments_learndot) - UPDATE (DEPENDENT UPON 4e)
+// Step 12 (query 12 - update ANsR column to 'YES') - UPDATE ((DEPENDENT UPON 4f)
 
     async getAllData() {
         try {
@@ -213,19 +171,22 @@ class DbService {
                                     pre.ASnR = "YES"
                                 WHERE
                                     ld.coursename LIKE "%Advanced Searching%";`
-                // const query12 = "SELECT email FROM enrollmentrefresh;"
+                
 
                 // DELETE FROM enrollmentrefresh
                 connection.query(query1, (err, results) => {
                     if (err) console.log(err.message);
+                    
                     // if (err) reject(new Error(err.message));
                     console.log("Step 1 (query 1 - enrollmentrefesh delete) complete!");
                     resolve(results);
+
                     // INSERT INTO enrollmentrefresh
                     connection.query(query2, (err, results) => {
                         if(err) console.log(err.message);
                         console.log("Step 2 (query 2 - insert into enrollmentrefresh) complete!");
                         resolve(results);
+
                         // DELETE FROM tb_elr_results
                         connection.query(query3, (err, results) => {
                             if(err) console.log(err.message);
@@ -240,9 +201,6 @@ class DbService {
                                     if(rows[i] != undefined){
                                         for(var i in rows){
                                             emailArray.push(rows[i].email)
-                                            // console.log(emailArray);
-                                            // console.log(emailArray[0])
-                                            //  Get registrationID, courseName, and email from eLearningRecords for each matching email from enrollmentrecords
                                             var query4b = 
                                                     `SELECT
                                                         registrationID,
@@ -272,18 +230,14 @@ class DbService {
                                                 var regArray =[]
                                                 connection2.query(query4b, (err, rows, results) => {
                                                     if(err) console.log(err.message);
-                                                    // console.log("running query4b" + Object.keys(rows).length);
                                                     var rowcount = Object.keys(rows).length
                                                     if(rowcount > 0){
                                                         for(j=1; j <= rowcount; j++){
                                                             if(rows[j] != undefined){
                                                                 for(var j in rows){
-                                                                    // regArray.push(rows[j].registrationID)
-                                                                    // console.log(rows[j].email + ', ' + rows[j].registrationID + ', ' + rows[j].courseName)
                                                                     const regID = rows[j].registrationID;
                                                                     const cName = rows[j].courseName;
                                                                     const elrEmail = rows[j].email;
-                                                                    // var query4c = `INSERT INTO tb_elr_results (registrationID, coursename, EMAIL) VALUES  ("` + regID + `", "` + cName + `", "` + elrEmail + `");`
                                                                     connection.query(query4c, [regID, cName, elrEmail], (err, rows, results) => {
                                                                     if(err) console.log(err.message);
                                                                     // resolve(results);
@@ -351,8 +305,6 @@ class DbService {
                                                                 for(j=1; j <= rowcount; j++){
                                                                     if(rows[j] != undefined){
                                                                         for(var j in rows){
-                                                                            // regArray.push(rows[j].registrationID)
-                                                                            // console.log(rows[j].email + ', ' + rows[j].registrationID + ', ' + rows[j].courseName)
                                                                             const regID = rows[j].registrationID;
                                                                             const cName = rows[j].courseName;
                                                                             const elrEmail = rows[j].email;
@@ -377,19 +329,15 @@ class DbService {
                                     if(err) console.log(err.message);
                                     console.log("Step 5 (query 5 - DELETE FROM tb_credlybadgeresult) complete!");
                                     resolve(results);
-                                    function logArray(emailArray){
-                                        emailArray.forEach(x => console.log("results: " + x));
-                                      }
-                                    //   logArray(emailArray);
 
                                       function checkBadges(emailArray){
                                           emailArray.forEach(x => {
                                               var options = {
                                                 'method': 'GET',
-                                                'url': 'https://api.credly.com/v1/organizations/4b74de99-bfb3-4f61-a50e-a7a336f322e7/badges?filter=recipient_email_all::' + x,
+                                                'url': 'process.env.API_URL' + x,
                                                 'headers': {
                                                     'Content-Type': 'application/json',
-                                                    'Authorization': 'Basic TlI2SkxCS0F2dTMyZHVVT2cxN1VDbGhXVGdZUENmbzc0SjEtXzFoMDo='
+                                                    'Authorization': process.env.API_AUTH
                                                 },
                                               };
                                               request(options, (error, response) => {
@@ -422,8 +370,7 @@ class DbService {
                                       }
 
                                       checkBadges(emailArray);
-                                    //   console.log(emailArray.length);
-                                    //   console.log("Step 5 complete!");
+                              
                                 })
                                 connection.query(query7, (err, results) => {
                                     if(err) console.log(err.message);

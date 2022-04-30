@@ -12,9 +12,8 @@ const sql2 = require('../../config/database');
 const database2 = require("../../config/database2");
 const res = require('express/lib/response');
 
-const dbService = require('../../dbService');
-
-
+const dbService = require('../../dbService copy_0427');
+const db = require('../../Database')
 
 router.get('/getAll', (request, response) => {
     const db = dbService.getDbServiceInstance();
