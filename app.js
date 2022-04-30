@@ -3,7 +3,24 @@ const mysql = require('mysql');
 const ejs = require('ejs');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+const QueryExec = require('./QueryExec')
+/*Query classes can have: name, getsql, getValues
+*/
+const Query01 = require('./queries/query01')
+const Query02 = require('./queries/query02')
+const Query03 = require('./queries/query03')
+//-----------
+let instance = null;
+dotenv.config();
+
+//array with all queries
+const queries = [
+  new Query01(),
+  new Query02(),
+  new Query03()
+]
 
 const http = require('http')
 
