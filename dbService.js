@@ -64,6 +64,8 @@ const queries = [
      new Query09()
 ]
 
+
+
 class DbService {
     static getDbServiceInstance() {
         return instance ? instance : new DbService();

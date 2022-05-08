@@ -3,6 +3,10 @@ const router = express.Router();
 
 const dbService = require('../../dbService');
 
+router.get('/getCredly', (request, resonse) => {
+    
+})
+
 router.get('/getAll', (request, response) => {
     const db = dbService.getDbServiceInstance();
     const result = db.getAllData();
