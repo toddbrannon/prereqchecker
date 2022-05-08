@@ -9,7 +9,6 @@ class QueryExec {
                 if (process.env.DB_DISABLED === '1') {
                     resolve(query.fakeResults)
                 } else {
-
                     conn.query(sql, values, (err, results) => {
                         if (err) {
                             console.log(query.name + ' query error ' + err.message);

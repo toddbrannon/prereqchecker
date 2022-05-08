@@ -1,11 +1,8 @@
 class Query {
     name = "3";
     getSql = previous => {
-        //return "INSERT INTO project (id, name, year) VALUES  (?, ?, ?)"
-        return "DELETE FROM tb_elr_results;"
+        return "SELECT email FROM enrollmentrefresh;"
     }
-    // getValues = previous => {
-    //     return [previous[0].id + new Date().getMilliseconds(), previous[0].name + '_test', previous[0].year + 50]
-    // }
+    fakeResults = {registrationID: 1, coursename: 2, EMAIL: 3}
 }
 module.exports = Query;

@@ -1,7 +1,6 @@
 class Query {
-    name = "1";
+    name = "1a";
     getSql = previous =>{
-        //return "select id, name from project limit 5"
         return "DELETE FROM enrollmentrefresh"
     }
 }
