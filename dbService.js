@@ -42,6 +42,8 @@ const Query04 = require('./queries/query04')
 const Query05 = require('./queries/query05')
 const Query06 = require('./queries/query06')
 const Query07 = require('./queries/query07')
+const Query08 = require('./queries/query08')
+const Query09 = require('./queries/query09')
 //-----------
 let instance = null;
 dotenv.config();
@@ -57,7 +59,9 @@ const queries = [
      new Query04(),
      new Query05(),
      new Query06(),
-     new Query07()
+     new Query07(),
+     new Query08(),
+     new Query09()
 ]
 
 class DbService {

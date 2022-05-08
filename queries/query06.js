@@ -1,10 +1,8 @@
 class Query {
-    name = "6";
+    name = "3";
     getSql = previous => {
-        return `INSERT INTO tb_elr_results (registrationID, coursename, EMAIL) VALUES  (?, ?, ?);`
+        return "SELECT email FROM enrollmentrefresh;"
     }
-        getValues = previous => {
-        return [previous.registrationID, previous.coursename, previous.EMAIL]
-    }
+    fakeResults = {registrationID: 1, coursename: 2, EMAIL: 3}
 }
 module.exports = Query;
