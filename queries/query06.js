@@ -1,5 +1,5 @@
 class Query {
-    name = "3";
+    name = "6";
     getSql = previous => {
         return "SELECT email FROM enrollmentrefresh;"
     }

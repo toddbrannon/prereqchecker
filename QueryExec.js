@@ -20,6 +20,7 @@ class QueryExec {
                     })
                 }
             });
+            // console.log(response);
             return response
         } catch (error) {
             console.log(query.name + ' catch ' + error);

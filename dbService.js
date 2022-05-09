@@ -36,6 +36,7 @@ const Query01a = require('./queries/query01a')
 const Query01b = require('./queries/query01b')
 const Query01c = require('./queries/query01c')
 const Query01d = require('./queries/query01d')
+const Query01e = require('./queries/query01e')
 const Query02 = require('./queries/query02')
 const Query03 = require('./queries/query03')
 const Query04 = require('./queries/query04')
@@ -54,6 +55,7 @@ const queries = [
     new Query01b(),
     new Query01c(),
     new Query01d(),
+    new Query01e(),
      new Query02(),
      new Query03(),
      new Query04(),
