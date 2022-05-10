@@ -38,12 +38,12 @@ const Query01c = require('./queries/query01c')
 const Query01d = require('./queries/query01d')
 const Query01e = require('./queries/query01e')
 const Query02 = require('./queries/query02')
-const Query03 = require('./queries/query03')
-const Query04 = require('./queries/query04')
-const Query05 = require('./queries/query05')
-const Query06 = require('./queries/query06')
-const Query07 = require('./queries/query07')
-const Query08 = require('./queries/query08')
+// const Query03 = require('./queries/query03')
+// const Query04 = require('./queries/query04')
+// const Query05 = require('./queries/query05')
+// const Query06 = require('./queries/query06')
+// const Query07 = require('./queries/query07')
+// const Query08 = require('./queries/query08')
 const Query09 = require('./queries/query09')
 //-----------
 let instance = null;
@@ -57,13 +57,14 @@ const queries = [
     new Query01d(),
     new Query01e(),
      new Query02(),
-     new Query03(),
-     new Query04(),
-     new Query05(),
-     new Query06(),
-     new Query07(),
-     new Query08(),
-     new Query09()
+    //  new Query03(),
+    //  new Query04(),
+    //  new Query05(),
+    //  new Query06(),
+    //  new Query07(),
+    //  new Query08()
+     new Query09(),
+    //  new Query10()
 ]
 
 
