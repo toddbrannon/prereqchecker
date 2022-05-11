@@ -39,10 +39,10 @@ connection2_elearning.connect((err) => {
 const Query01 = require('./queries/query01')
 const Query02 = require('./queries/query02')
 const Query03 = require('./queries/query03')
-const Query04 = require('./queries/query04')
-// const Query05 = require('./queries/query05')
-const Query09 = require('./queries/query09')
-const Query10 = require('./queries/query10')
+// const Query04 = require('./queries/query04')
+// // const Query05 = require('./queries/query05')
+// const Query09 = require('./queries/query09')
+// const Query10 = require('./queries/query10')
 //-----------
 let instance = null;
 dotenv.config();
@@ -52,10 +52,10 @@ const queries = [
     new Query01(),
     new Query02(),
     new Query03(),
-    new Query04(),
-    // new Query05(),
-    new Query09(),
-    new Query10()
+    // new Query04(),
+    // // new Query05(),
+    // new Query09(),
+    // new Query10()
 ]
 
 
@@ -75,8 +75,11 @@ class DbService {
                 previous = await queryExec.exec(connection2_elearning, query, previous)
             } else {
                 if(query.name == "get_enrollmentrefresh_emails"){
+                    var emailArray = []
                     previous = await queryExec.exec(connection_learndot, query, previous)
-                    email_array = []
+                    const result = Object.values(JSON.parse(JSON.stringify(previous)));
+                    result.forEach((v) => console.log(v) && emailArray.push(v));
+                
                 } else {
                     previous = await queryExec.exec(connection_learndot, query, previous)
                 }      
