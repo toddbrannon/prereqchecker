@@ -74,7 +74,12 @@ class DbService {
             if(query.name == "get_elearning") {
                 previous = await queryExec.exec(connection2_elearning, query, previous)
             } else {
-                previous = await queryExec.exec(connection_learndot, query, previous)
+                if(query.name == "get_enrollmentrefresh_emails"){
+                    previous = await queryExec.exec(connection_learndot, query, previous)
+                    email_array = []
+                } else {
+                    previous = await queryExec.exec(connection_learndot, query, previous)
+                }      
             }           
         }
         if (process.env.DB_DISABLED !== '1') {
