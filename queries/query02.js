@@ -1,5 +1,6 @@
 class Query {
-    name = "2";
+    name = "refresh_enrollmentrefresh";
+    step = "2"
     getSql = previous =>{
         //return `select id, name, year, "${previous[0].id}" as test from project limit 5`
         return `INSERT INTO enrollmentrefresh (

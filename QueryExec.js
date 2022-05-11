@@ -11,10 +11,10 @@ class QueryExec {
                 } else {
                     conn.query(sql, values, (err, results) => {
                         if (err) {
-                            console.log(query.name + ' query error ' + err.message);
+                            console.log(query.step + query.name + ' query error ' + err.message);
                             reject(err)
                         } else {
-                            console.log(query.name + ' query success')
+                            console.log(query.step + query.name + ' query success')
                             resolve(results);
                         }
                     })
@@ -23,7 +23,7 @@ class QueryExec {
             // console.log(response);
             return response
         } catch (error) {
-            console.log(query.name + ' catch ' + error);
+            console.log(query.step + query.name + ' catch ' + error);
         }
     }
 }

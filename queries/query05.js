@@ -1,5 +1,6 @@
 class Query {
-    name = "5";
+    name = "insert_into_tb_enrollments_learndot: ";
+    step = "5"
     getSql = previous => {
         const sqls = [];
         previous.forEach(element => {

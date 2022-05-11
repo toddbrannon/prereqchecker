@@ -1,5 +1,6 @@
 class Query {
-    name = "4";
+    name = "get_elearning";
+    step = "4"
     getSql = previous => {
         return `SELECT
         registrationID,
