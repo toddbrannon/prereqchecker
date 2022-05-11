@@ -1,3 +1,5 @@
+// this is currently just a copy of query10.js to work from in integrating the code from Credly.js (TB 5/11/2022)
+
 class Query {
     name = "10";
     getSql = previous => {
