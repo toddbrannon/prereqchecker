@@ -14,6 +14,7 @@ function checkBadges(emailArray){
             body = JSON.parse(body)
             const data = body.data
             const badge_results = []
+            const queryCredly = 'INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES (?, ?, ?, ?, ?)'
 
             for(var i in data)
               if(data[i].recipient_email != undefined && i != 0)
@@ -25,7 +26,7 @@ function checkBadges(emailArray){
                       var badge_name = badge_result[3]
                       var badge_state = badge_result[4]
                       var user_id = badge_result[5]
-                  connection.query(query6, [recipient_email, badge_id, badge_name, badge_state, user_id], (err, rows, results) => {
+                      connection_learndot.query(queryCredly, [recipient_email, badge_id, badge_name, badge_state, user_id], (err, rows, results) => {
                       if(err) console.log(err.message);
                       
                       resolve(results);
