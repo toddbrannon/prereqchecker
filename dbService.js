@@ -71,15 +71,29 @@ class DbService {
         let previous; //previous query result
         for (let i = 0; i < queries.length; ++i) {
             const query = queries[i]
+            // if the query name is 'get_eLearning', query the second db server (elearning), not the first db server
             if(query.name == "get_elearning") {
-                previous = await queryExec.exec(connection2_elearning, query, previous)
+                    previous = await queryExec.exec(connection2_elearning, query, previous)
             } else {
+                // if the query name is NOT 'get_elearning', but IS 'get_enrollmentrefresh_emails', create the emailArray and fill with emails from
+                // ... the enrollmentrefresh table to subsequently pass as criteria to the 'get_elearning' query
                 if(query.name == "get_enrollmentrefresh_emails"){
-                    var emailArray = []
+                    
                     previous = await queryExec.exec(connection_learndot, query, previous)
                     const result = Object.values(JSON.parse(JSON.stringify(previous)));
-                    result.forEach((v) => console.log(v) && emailArray.push(v));
-                
+                    // console.log("Result: ", result);
+
+                    // Create an array for the emails in result
+                    const emailArray = []
+  
+                    // add emails in result object to emailArray
+                    result.map(x => emailArray.push(x.email));
+
+                    // iterate through all the elements of the email array and do something
+                    for(let i = 0; i < emailArray.length; i++){
+                        console.log("email " + (i) + ": ", emailArray[i]);
+                    }
+                    
                 } else {
                     previous = await queryExec.exec(connection_learndot, query, previous)
                 }      

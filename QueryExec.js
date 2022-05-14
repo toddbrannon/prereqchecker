@@ -3,8 +3,11 @@ class QueryExec {
         try {
             const sql = query.getSql(previous)
             const values = query.getValues && query.getValues(previous)
-            console.log(query.name, sql, values)
-
+            // const result = Object.values(JSON.parse(JSON.stringify(previous)));
+            console.log("query name : " + query.name);
+            // console.log("SQL: " + sql);
+            
+            
             const response = await new Promise((resolve, reject) => {
                 if (process.env.DB_DISABLED === '1') {
                     resolve(query.fakeResults)
