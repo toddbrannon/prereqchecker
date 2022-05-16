@@ -1,6 +1,6 @@
 class Query {
     name = "insert_into_tb_elr_results";
-    step = "9"
+    step = "06"
     getSql = previous => {
         return `INSERT INTO tb_elr_results 
                 (registrationID, coursename, EMAIL)

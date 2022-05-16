@@ -1,6 +1,6 @@
 class Query {
     name = "get_enrollmentrefresh_emails"
-    step = "3";
+    step = "03";
     getSql = previous => {
         return "SELECT email FROM enrollmentrefresh;"
     }
