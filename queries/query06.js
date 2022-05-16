@@ -1,8 +1,36 @@
 class Query {
-    name = "6";
+    name = "insert_into_tb_elr_results";
+    step = "9"
     getSql = previous => {
-        return "SELECT email FROM enrollmentrefresh;"
+        return `INSERT INTO tb_elr_results 
+                (registrationID, coursename, EMAIL)
+                SELECT
+                E.id AS registrationID,
+                LC.name AS courseName,
+                er.email
+                FROM
+                enrollment E
+                INNER JOIN
+                learningcomponent LC ON E.component_id = LC.id
+                INNER JOIN
+                contact C ON E.contact_id = C.id
+                INNER JOIN
+                enrollmentrefresh er ON er.email = C.email
+                AND
+                E.status LIKE 'PASSED'
+                AND
+                (
+                    (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
+                    OR
+                    LC.name LIKE '%Creating Dashboards%'
+                    OR
+                    LC.name LIKE '%Advanced Searching%'
+                    OR
+                    LC.name LIKE '%Core Consultant Labs%'
+                ) ORDER BY EMAIL ASC;`
     }
-    fakeResults = {registrationID: 1, coursename: 2, EMAIL: 3}
+        getValues = previous => {
+        return [previous.registrationID, previous.coursename, previous.EMAIL]
+    }
 }
 module.exports = Query;

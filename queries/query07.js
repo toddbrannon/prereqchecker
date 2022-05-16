@@ -1,33 +1,12 @@
 class Query {
-    name = "7";
+    name = 'insert_credly';
+    step = "07";
     getSql = previous => {
-        return `SELECT
-        E.id AS registrationID,
-        LC.name AS courseName
-      FROM
-        enrollment E
-      INNER JOIN
-        learningcomponent LC ON E.component_id = LC.id
-      INNER JOIN
-        contact C ON E.contact_id = C.id
-      WHERE
-        C.email = ?
-      AND
-        E.status LIKE 'PASSED'
-      AND
-      (
-        (LC.name LIKE '%Fundamentals%' AND LC.name LIKE '%Part 3%')
-        OR
-          LC.name LIKE '%Creating Dashboards%'
-        OR
-          LC.name LIKE '%Advanced Searching%'
-        OR
-          LC.name LIKE '%Core Consultant Labs%'
-      );`
+        return `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES (?, ?, ?, ?, ?)`
     }
-        getValues = previous => {
-        return [previous.registrationID, previous.coursename, previous.EMAIL]
+    getValues = previous => {
+        const from_api = { recipientemail:"any@email.com", badge_id: 0, badge_name:"doe", badge_template_state:"x", user_id: 1 };
+        return from_api
     }
 }
 module.exports = Query;
-

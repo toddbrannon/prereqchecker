@@ -1,13 +1,12 @@
 class Query {
-    name = "insert_into_tb_enrollments_learndot: ";
-    step = "5"
+    name = 'insert_credly';
+    step = "07";
     getSql = previous => {
-        const sqls = [];
-        previous.forEach(element => {
-            sqls.push(`INSERT INTO tb_enrollments_learndot (registrationID, coursename, email) VALUES  (${element.registrationID}, "${element.courseName}", "${element.email}")`)
-        });
-        console.log(sqls);
-        return sqls.join(';')
+        return `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES (?, ?, ?, ?, ?)`
+    }
+    getValues = previous => {
+        const from_api = { recipientemail:"any@email.com", badge_id: 0, badge_name:"doe", badge_template_state:"x", user_id: 1 };
+        return from_api
     }
 }
 module.exports = Query;

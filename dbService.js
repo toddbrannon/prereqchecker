@@ -41,8 +41,8 @@ const Query02 = require('./queries/query02')
 const Query03 = require('./queries/query03')
 const Query04 = require('./queries/query04')
 const Query05 = require('./queries/query05')
-const Query09 = require('./queries/query09')
-const Query10 = require('./queries/query10')
+const Query09 = require('./queries/query06')
+const Query10 = require('./queries/query07')
 //-----------
 let instance = null;
 dotenv.config();
