@@ -3,7 +3,6 @@ class Query {
   step = "04"
   
   getSql = (emails = []) => {
-    console.log('values' + emails)
       return `SELECT
       registrationID,
       courseName,

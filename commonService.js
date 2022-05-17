@@ -1,4 +1,5 @@
 const { getLearnDotDBConnection, getELearningConnector } = require('./dbConnector');
+const logger = require('./utils/logger');
 
 const Query01 = require('./queries/query01')
 const Query02 = require('./queries/query02')
@@ -11,17 +12,15 @@ const Query07 = require('./queries/query07')
 const doQueryExec = async(connection, queryClass, values) => {
     const query = new queryClass();
     try {
-        console.log('Execution Query : ' + query.getSql(values) + values);
+        logger.info('Execution Query : ' + query.name + "|" + query.step);
         const response = await new Promise((resolve, reject) => {
             if (process.env.DB_DISABLED === '1') {
                 resolve(query.fakeResults)
             } else {
                 connection.query(query.getSql(values), (err, results) => {
                     if (err) {
-                        console.log(query.step + query.name + ' query error ' + err.message);
                         reject(err)
                     } else {
-                        console.log(query.step + query.name + ' query success')
                         resolve(JSON.parse(JSON.stringify(results)));
                     }
                 })
@@ -29,7 +28,8 @@ const doQueryExec = async(connection, queryClass, values) => {
         });
         return response
     } catch (error) {
-        console.log(query.step + query.name + ' catch ' + error);
+        logger.error("An error occured : " + query.step + query.name, error);
+        return { message: error.message }
     }
 }
 
@@ -43,7 +43,7 @@ const chunkEmails = (dataToChunk, chunkSize = 50) => {
 }
 
 const getAll = async () => {
-    console.log('Start : getAll service method')
+    logger.info('Start : getAll service method')
     
     const connectionLearnDot = getLearnDotDBConnection();
     const connectionELearning = getELearningConnector();
@@ -52,27 +52,36 @@ const getAll = async () => {
         const resultsQ3 = await doQueryExec(connectionLearnDot, Query03)
         const allEmails = resultsQ3.map(result => JSON.stringify(result.email));
 
-        const emailChunks = chunkEmails(allEmails, 2);
-        emailChunks.forEach(async emailChunk => {
-            let resultsQ4 = await doQueryExec(connectionELearning, Query04, emailChunk)
-            console.log(resultsQ4)
+        const emailChunks = chunkEmails(allEmails, 50);
+        let resultsQ4, resultQ5;
+        for(let emailChunk of emailChunks) {
+            resultsQ4 = await doQueryExec(connectionELearning, Query04, emailChunk)
+            resultQ5 = await doQueryExec(connectionLearnDot, Query05, resultsQ4)
 
-            let resultsQ5 = await doQueryExec(connectionLearnDot, Query05, resultsQ4)
-            console.log(resultsQ5)
-
-            // // TODO : Uncomment this
-            // let resultsQ6 = await doQueryExec(connection_learndot, Query06)
-            // console.log(resultsQ6)
+            // Note : Tables required to check this query
+            // const resultsQ6 = await doQueryExec(connectionLearnDot, Query06)
 
             // TODO : Query 7
-        });
+        }
         
         return {
-            totalEmailsFromQ3: resultsQ3.length,
-            executionChunk: emailChunks.length,
+            executionQ3: {
+                totalResults: resultsQ3.length,
+                executionChunk: emailChunks.length,
+            },
+            executionQ4: {
+                totalResults: resultsQ4.length,
+            },
+            executionQ5: {
+                affectedRows: resultQ5 ? resultQ5.affectedRows : null,
+                message: resultQ5 ? resultQ5.message : null
+            }
         }
     } catch (err) {
-        console.log('Error : ' + err);
+        logger.error('An error occured while getAll processing', err);
+        return {
+            error: err
+        }
     }
 }
 
