@@ -49,7 +49,10 @@ const getAll = async () => {
     const connectionELearning = getELearningConnector();
 
     try {
-        const resultsQ3 = await doQueryExec(connectionLearnDot, Query03)
+        const resultsQ1 = await doQueryExec(connectionLearnDot, Query01);
+        const resultsQ2 = await doQueryExec(connectionLearnDot, Query02);
+
+        const resultsQ3 = await doQueryExec(connectionLearnDot, Query03);
         const allEmails = resultsQ3.map(result => JSON.stringify(result.email));
         if (!allEmails) {
             return {
@@ -78,6 +81,14 @@ const getAll = async () => {
         }
         
         return {
+            executionQ1: {
+                affectedRows: resultsQ1 ? resultsQ1.affectedRows : 0,
+                message: resultsQ1 ? resultsQ1.message : null
+            },
+            executionQ2: {
+                affectedRows: resultsQ2 ? resultsQ2.affectedRows : 0,
+                message: resultsQ2 ? resultsQ2.message : null
+            },
             executionQ3: {
                 totalResults: resultsQ3.length,
                 executionChunk: emailChunks.length,
