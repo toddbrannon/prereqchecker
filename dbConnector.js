@@ -35,7 +35,7 @@ const createELearningConnectionPool = () => {
         }
         connection2_elearning_pool = mysql.createPool({
             host: process.env.DB2_HOST,
-            user: process.env.DB2_USER,
+            user: process.env.DB_USER,
             password: process.env.DB2_PASS,
             database: process.env.DB2_NAME,
             port: process.env.DB_PORT,
