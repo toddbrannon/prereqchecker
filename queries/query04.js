@@ -2,7 +2,7 @@ class Query {
   name = "get_elearning";
   step = "04"
   
-  getSql = previous => {
+  getSql = (emails = []) => {
       return `SELECT
       registrationID,
       courseName,
@@ -10,7 +10,7 @@ class Query {
     FROM
       eLearningRecords
     WHERE
-      email = ?
+      email in (${emails.join(',')})
     AND
       (
         SCORMLESSONSTATUS LIKE 'passed'
