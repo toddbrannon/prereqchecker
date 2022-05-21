@@ -1,4 +1,5 @@
 const { getLearnDotDBConnection, getELearningConnector } = require('./dbConnector');
+const { getBadges } = require('./credlyService');
 const logger = require('./utils/logger');
 
 const Query01 = require('./queries/query01')
@@ -62,16 +63,24 @@ const getAll = async () => {
             } 
         }
         const emailChunks = chunkEmails(allEmails, 50);
-        let resultsQ4, resultQ5;
+        let resultsQ4, resultQ5, resultQ6, resultQ7;
         for(let emailChunk of emailChunks) {
             resultsQ4 = await doQueryExec(connectionELearning, Query04, emailChunk)
             if (resultsQ4) {
                 resultQ5 = await doQueryExec(connectionLearnDot, Query05, resultsQ4)
 
-                // Note : Tables required to check this query
-                // const resultsQ6 = await doQueryExec(connectionLearnDot, Query06)
+                resultQ6 = await doQueryExec(connectionLearnDot, Query06)
     
-                // TODO : Query 7
+                let badgesForEmailChunk = []
+                for(let email of emailChunk) {
+                    const badgeResults = await getBadges(email);
+                    if (badgeResults) {
+                        badgesForEmailChunk = badgesForEmailChunk.concat(badgeResults);
+                    } else {
+                        logger.info(`No badges found for email : ${email}`);
+                    }
+                }
+                resultQ7 = await doQueryExec(connectionLearnDot, Query07, badgesForEmailChunk)
             } else {
                 resultsQ4 = {
                     message: 'No results found!'
@@ -100,6 +109,14 @@ const getAll = async () => {
             executionQ5: {
                 affectedRows: resultQ5 ? resultQ5.affectedRows : null,
                 message: resultQ5 ? resultQ5.message : null
+            },
+            executionQ6: {
+                affectedRows: resultQ6 ? resultQ6.affectedRows : null,
+                message: resultQ6 ? resultQ6.message : null
+            },
+            executionQ7: {
+                affectedRows: resultQ7 ? resultQ7.affectedRows : null,
+                message: resultQ7 ? resultQ7.message : null
             }
         }
     } catch (err) {
