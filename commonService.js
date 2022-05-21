@@ -49,32 +49,61 @@ const getAll = async () => {
     const connectionELearning = getELearningConnector();
 
     try {
-        const resultsQ3 = await doQueryExec(connectionLearnDot, Query03)
+        const resultsQ1 = await doQueryExec(connectionLearnDot, Query01);
+        const resultsQ2 = await doQueryExec(connectionLearnDot, Query02);
+        const resultsQ3 = await doQueryExec(connectionLearnDot, Query03);
+        const resultsQ6 = await doQueryExec(connectionLearnDot, Query06);
         const allEmails = resultsQ3.map(result => JSON.stringify(result.email));
-
+        if (!allEmails) {
+            return {
+                executionQ3: {
+                    message: 'No emails found!'
+                }
+            } 
+        }
         const emailChunks = chunkEmails(allEmails, 50);
         let resultsQ4, resultQ5;
         for(let emailChunk of emailChunks) {
             resultsQ4 = await doQueryExec(connectionELearning, Query04, emailChunk)
-            resultQ5 = await doQueryExec(connectionLearnDot, Query05, resultsQ4)
+            if (resultsQ4) {
+                resultQ5 = await doQueryExec(connectionLearnDot, Query05, resultsQ4)
 
-            // Note : Tables required to check this query
-            // const resultsQ6 = await doQueryExec(connectionLearnDot, Query06)
-
-            // TODO : Query 7
+                // Note : Tables required to check this query
+                // const resultsQ6 = await doQueryExec(connectionLearnDot, Query06)
+    
+                // TODO : Query 7
+            } else {
+                resultsQ4 = {
+                    message: 'No results found!'
+                }
+            }
+            
         }
         
         return {
+            executionQ1: {
+                affectedRows: resultsQ1 ? resultsQ1.affectedRows : 0,
+                message: resultsQ1 ? resultsQ1.message : null
+            },
+            executionQ2: {
+                affectedRows: resultsQ2 ? resultsQ2.affectedRows : 0,
+                message: resultsQ2 ? resultsQ2.message : null
+            },
             executionQ3: {
                 totalResults: resultsQ3.length,
                 executionChunk: emailChunks.length,
             },
             executionQ4: {
-                totalResults: resultsQ4.length,
+                totalResults: resultsQ4 ? resultsQ4.length : 0,
+                message: resultsQ4 ? resultsQ4.message : null
             },
             executionQ5: {
                 affectedRows: resultQ5 ? resultQ5.affectedRows : null,
                 message: resultQ5 ? resultQ5.message : null
+            },
+            executionQ6: {
+                affectedRows: resultsQ6 ? resultsQ6.affectedRows : null,
+                message: resultsQ6 ? resultsQ6.message : null
             }
         }
     } catch (err) {
