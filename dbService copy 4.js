@@ -275,12 +275,12 @@ class DbService {
 
                                       function checkBadges(emailArray){
                                           emailArray.forEach(x => {
-                                              var options = {
+                                            var options = {
                                                 'method': 'GET',
-                                                'url': 'https://api.credly.com/v1/organizations/4b74de99-bfb3-4f61-a50e-a7a336f322e7/badges?filter=recipient_email_all::' + x,
+                                                'url': process.env.CREDLY_URL + x,
                                                 'headers': {
                                                     'Content-Type': 'application/json',
-                                                    'Authorization': 'Basic TlI2SkxCS0F2dTMyZHVVT2cxN1VDbGhXVGdZUENmbzc0SjEtXzFoMDo='
+                                                    'Authorization': process.env.CREDLY_AUTH
                                                 },
                                               };
                                               request(options, (error, response) => {
