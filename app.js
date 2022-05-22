@@ -4,6 +4,7 @@ const ejs = require('ejs');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const { createLearnDotConnectionPool, createELearningConnectionPool } = require('./dbConnector');
 
 require('dotenv').config();
 
@@ -36,4 +37,6 @@ app.use('/', indexRouter)
 // listen for requests
 app.listen(process.env.PORT, () => {
   console.log(`The server is running on port ${port}...`);
-  });
+  createLearnDotConnectionPool();
+  createELearningConnectionPool();
+});
