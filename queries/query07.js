@@ -7,7 +7,8 @@ class Query {
             const vals = [`'${element.recipientEmail}'`, `'${element.badgeId}'`, `'${element.badgeName}'`,  `'${element.badgeState}'`,  `'${element.userId}'`]
             insertVals.push(`(${vals.join(',')})`);
         });
-        
+        if (insertVals.length === 0) return '';
+    
         const sql = `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES ${insertVals.join(',')}`;
         // console.log(sql);
         return sql;
