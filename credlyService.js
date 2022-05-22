@@ -3,8 +3,8 @@ var axios = require('axios');
 const logger = require('./utils/logger');
 
 const triggerCredlyAPI = async (emailId) => {
-
-    const requestURL = process.env.CREDLY_URL + emailId
+    // console.log(emailId);
+    const requestURL = `${process.env.CREDLY_URL}${emailId.slice(1, -1)}`
   
     var config = {
         method: 'GET',
@@ -14,7 +14,7 @@ const triggerCredlyAPI = async (emailId) => {
             'Authorization': process.env.CREDLY_AUTH
         }
     };
-
+// console.log(requestURL);
     try {
         const result = await axios(config);
         if (!result) {
@@ -22,6 +22,7 @@ const triggerCredlyAPI = async (emailId) => {
             return null
         }
         logger.info(`Successfully fetched data from Credly. Email: ${emailId}`);
+        // console.log(result.data);
         return result.data;
     } catch(error) {
         logger.error(`An error occured while fetching from Credly. Email: ${emailId}`)
@@ -31,9 +32,9 @@ const triggerCredlyAPI = async (emailId) => {
 
 const getBadges = async (emailId) => {
     const badges = await triggerCredlyAPI(emailId);
-    if (badges) {
+    if (badges && badges.data) {
         const badgeResults = []
-        badges.forEach(badge => {
+        badges.data.forEach(badge => {
             const { recipient_email, badge_template, user } = badge;
             badgeResults.push({
                 recipientEmail: recipient_email,

@@ -47,7 +47,10 @@ const chunkEmails = (dataToChunk, chunkSize = 50) => {
     return chunks;
 }
 
+
+
 const getAll = async () => {
+    
     logger.info('Start : getAll service method')
     
     const connectionLearnDot = getLearnDotDBConnection();
@@ -86,16 +89,17 @@ const getAll = async () => {
                 let badgesForEmailChunk = []
                 for(let email of emailChunk) {
                     const badgeResults = await getBadges(email);
+                    // console.log(badgeResults)
                     if (badgeResults) {
                         badgesForEmailChunk = badgesForEmailChunk.concat(badgeResults);
                     } else {
                         logger.info(`No badges found for email : ${email}`);
                     }
                 }
+                // console.log(badgesForEmailChunk);
                 const responseQ7 = await doQueryExec(connectionLearnDot, Query07, badgesForEmailChunk)
                 if (responseQ7.message) { resultQ7.message.push(responseQ7.message) }
-                resultQ7.totalResults = resultQ7.totalResults + responseQ7.affectedRows ? responseQ7.affectedRows : 0
-                
+                resultQ7.totalResults = resultQ7.totalResults + responseQ7.affectedRows ? responseQ7.affectedRows : 0  
             } else {
                 resultsQ4.message.push('No results found!')
             }
@@ -131,13 +135,15 @@ const getAll = async () => {
                 totalResults: resultQ7 ? resultQ7.totalResults : null,
                 message: resultQ7 ? resultQ7.message : null
             }
+            
+            
         }
     } catch (err) {
         logger.error('An error occured while getAll processing', err);
         return {
             error: err
         }
-    }
+    } 
 }
 
 module.exports = {

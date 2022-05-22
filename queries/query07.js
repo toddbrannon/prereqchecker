@@ -1,12 +1,16 @@
+const { CLIENT_LONG_FLAG } = require("mysql/lib/protocol/constants/client");
+
 class Query {
     name = 'insert_credly';
     step = "07";
     getSql = (values) => {
+        // console.log(values);
         const insertVals = [];
         values.forEach(element => {
-            const vals = [`'${element.recipientEmail}'`, `'${element.badgeId}'`, `'${element.badgeName}'`,  `'${element.badgeState}'`,  `'${element.userId}'`]
+            const vals = [`'${element.recipientEmail}'`, `'${element.badgeId}'`, `"${element.badgeName}"`,  `"${element.badgeState}"`,  `'${element.userId}'`]
             insertVals.push(`(${vals.join(',')})`);
         });
+        // console.log(insertVals);
         if (insertVals.length === 0) return '';
     
         const sql = `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES ${insertVals.join(',')}`;
@@ -20,3 +24,6 @@ class Query {
     }
 }
 module.exports = Query;
+
+
+
