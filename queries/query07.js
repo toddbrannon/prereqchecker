@@ -13,7 +13,9 @@ class Query {
         // console.log(insertVals);
         if (insertVals.length === 0) return '';
     
-        const sql = `INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES ${insertVals.join(',')}`;
+        const sql = `ALTER TABLE tb_credlybadgeresult DROP COLUMN id;
+        ALTER TABLE tb_credlybadgeresult ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY; 
+        INSERT INTO tb_credlybadgeresult (recipientemail, badge_id, badge_name, badge_template_state, user_id) VALUES ${insertVals.join(',')}`;
         // console.log(sql);
         return sql;
     }

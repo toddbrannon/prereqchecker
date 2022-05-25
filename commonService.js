@@ -9,6 +9,9 @@ const Query04 = require('./queries/query04')
 const Query05 = require('./queries/query05')
 const Query06 = require('./queries/query06')
 const Query07 = require('./queries/query07')
+const Query08 = require('./queries/query08')
+const Query09 = require('./queries/query09')
+const Query10 = require('./queries/query10')
 
 const doQueryExec = async(connection, queryClass, values) => {
     const query = new queryClass();
@@ -82,10 +85,6 @@ const getAll = async () => {
                 if (responseQ5.message) { resultQ5.message.push(responseQ5.message) }
                 resultQ5.totalResults = resultQ5.totalResults + responseQ5.affectedRows ? responseQ5.affectedRows : 0
                 
-                const responseQ6 = await doQueryExec(connectionLearnDot, Query06)
-                if (responseQ6.message) { resultQ6.message.push(responseQ6.message) }
-                resultQ6.totalResults = resultQ6.totalResults + responseQ6.affectedRows ? responseQ6.affectedRows : 0
-                
                 let badgesForEmailChunk = []
                 for(let email of emailChunk) {
                     const badgeResults = await getBadges(email);
@@ -102,10 +101,14 @@ const getAll = async () => {
                 resultQ7.totalResults = resultQ7.totalResults + responseQ7.affectedRows ? responseQ7.affectedRows : 0  
             } else {
                 resultsQ4.message.push('No results found!')
-            }
-            
+            }  
         }
-        
+        const responseQ6 = await doQueryExec(connectionLearnDot, Query06)
+        if (responseQ6.message) { resultQ6.message.push(responseQ6.message) }
+        resultQ6.totalResults = resultQ6.totalResults + responseQ6.affectedRows ? responseQ6.affectedRows : 0
+        const resultsQ8 = await doQueryExec(connectionLearnDot, Query08);
+        const resultsQ9 = await doQueryExec(connectionLearnDot, Query09);
+        const resultsQ10 = await doQueryExec(connectionLearnDot, Query10);
         return {
             executionQ1: {
                 affectedRows: resultsQ1 ? resultsQ1.affectedRows : 0,
@@ -134,8 +137,19 @@ const getAll = async () => {
             executionQ7: {
                 totalResults: resultQ7 ? resultQ7.totalResults : null,
                 message: resultQ7 ? resultQ7.message : null
+            },
+            executionQ8: {
+                totalResults: resultsQ8 ? resultsQ8.totalResults : null,
+                message: resultsQ8 ? resultsQ8.message : null
+            },
+            executionQ9: {
+                totalResults: resultsQ9 ? resultsQ9.totalResults : null,
+                message: resultsQ9 ? resultsQ9.message : null
+            },
+            executionQ10: {
+                totalResults: resultsQ10 ? resultsQ10.totalResults : null,
+                message: resultsQ10 ? resultsQ10.message : null
             }
-            
             
         }
     } catch (err) {
