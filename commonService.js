@@ -12,6 +12,7 @@ const Query07 = require('./queries/query07')
 const Query08 = require('./queries/query08')
 const Query09 = require('./queries/query09')
 const Query10 = require('./queries/query10')
+const Query11 = require('./queries/query11')
 
 const doQueryExec = async(connection, queryClass, values) => {
     const query = new queryClass();
@@ -54,6 +55,16 @@ const chunkEmails = (dataToChunk, chunkSize = 50) => {
 
 const getAll = async () => {
     
+    let start = process.hrtime();
+    const elapsed_time = function(note){
+        const precision = 3; // 3 decimal places
+        const elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get from nano to milli
+        console.log(process.hrtime(start)[0] + " s, " + elapsed.toFixed(precision) + " ms - " + note); // print message + time
+        start = process.hrtime(); // reset the timer
+    }
+
+    elapsed_time("received request")
+
     logger.info('Start : getAll service method')
     
     const connectionLearnDot = getLearnDotDBConnection();
@@ -109,6 +120,8 @@ const getAll = async () => {
         const resultsQ8 = await doQueryExec(connectionLearnDot, Query08);
         const resultsQ9 = await doQueryExec(connectionLearnDot, Query09);
         const resultsQ10 = await doQueryExec(connectionLearnDot, Query10);
+        const resultsQ11 = await doQueryExec(connectionLearnDot, Query11);
+        elapsed_time("request complete")
         return {
             executionQ1: {
                 affectedRows: resultsQ1 ? resultsQ1.affectedRows : 0,
@@ -149,16 +162,22 @@ const getAll = async () => {
             executionQ10: {
                 totalResults: resultsQ10 ? resultsQ10.totalResults : null,
                 message: resultsQ10 ? resultsQ10.message : null
-            }
-            
+            },
+            executionQ11: {
+                totalResults: resultsQ11 ? resultsQ11.totalResults : null,
+                message: resultsQ11 ? resultsQ11.message : null
+            }  
         }
     } catch (err) {
         logger.error('An error occured while getAll processing', err);
         return {
             error: err
         }
+        
     } 
+    
 }
+
 
 module.exports = {
     getAll
